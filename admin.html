@@ -51,6 +51,12 @@
             <div class="editor-buttons"><button id="cancelEdit" class="button button-quiet" type="button">Annuler</button><button id="applyEdit" class="button button-primary" type="button">Appliquer</button></div>
             <p id="editMessage" class="message" role="status"></p>
           </section>
+          <section class="image-library">
+            <div class="selected-label">IMAGES DU SITE</div>
+            <h3>Gérer les images</h3>
+            <p class="help-text">Remplacez n’importe quelle image du site depuis votre appareil. Les changements restent en brouillon jusqu’à la publication.</p>
+            <div id="imageLibraryList" class="image-library-list"></div>
+          </section>
           <section class="color-editor"><div class="selected-label">COULEURS DU SITE</div><h3>Personnaliser les couleurs</h3><label for="colorTheme">Thème à modifier</label><select id="colorTheme"><option value="dark">Mode sombre</option><option value="light">Mode clair</option></select><div class="color-grid"><label>Arrière-plan<input type="color" id="colorBg"></label><label>Surfaces<input type="color" id="colorSurface"></label><label>Surface secondaire<input type="color" id="colorSurface2"></label><label>Texte<input type="color" id="colorText"></label><label>Texte secondaire<input type="color" id="colorMuted"></label><label>Couleur principale<input type="color" id="colorGreen"></label><label>Couleur secondaire<input type="color" id="colorGreen2"></label><label>En-tête<input type="color" id="colorHeader"></label><label>Bordures<input type="color" id="colorLine"></label></div><p class="help-text">Les couleurs du mode sombre et du mode clair sont enregistrées séparément.</p><button id="applyColors" class="button button-primary" type="button">Appliquer les couleurs</button></section><div class="panel-footer"><button id="discardBtn" class="text-button" type="button">Annuler toutes les modifications</button><p>Les changements restent en brouillon jusqu’à la publication.</p></div>
         </aside>
         <section class="preview-panel">
