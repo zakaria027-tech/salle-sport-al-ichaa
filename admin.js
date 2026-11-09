@@ -22,7 +22,7 @@ const ID_FIELDS={
  martialText:{path:"translations",key:"martialText",title:"Texte — Arts martiaux"},addressText:{path:"contact.address",title:"Adresse"},
  hoursText:{path:"contact.hours",title:"Horaires"},fitnessImage:{path:"images.fitness",title:"Image — Fitness",type:"image"},
  martialImage:{path:"images.martial",title:"Image — Arts martiaux",type:"image"},heroImage:{path:"heroImage",title:"Image de couverture",type:"image"},
- brandMark:{path:"logoUrl",title:"Logo du club",type:"image"}
+ brandMark:{path:"logoUrl",title:"Logo du club",type:"image"},phoneLink:{path:"contact.phone",title:"Numéro de téléphone"},whatsappLink:{path:"contact.whatsapp",title:"Numéro WhatsApp"}
 };
 function notify(id,text,error=false){const el=$(id);if(!el)return;el.textContent=text;el.classList.toggle("error",error);el.style.color=error?"var(--danger)":"var(--green)"}
 function clone(v){return JSON.parse(JSON.stringify(v))}
@@ -41,7 +41,7 @@ function refreshPreview(path,value){
  else if(path==="images.fitness"||path==="images.martial"){const id=path.endsWith("fitness")?"fitnessImage":"martialImage";if(byId(id))byId(id).src=value}
  else if(path==="heroImage"){const el=byId("heroImage");if(el)el.style.backgroundImage='linear-gradient(90deg,rgba(3,10,6,.90),rgba(3,10,6,.18)),url("'+value.replace(/["\\]/g,"")+'")'}
  else if(path==="logoUrl"){const el=byId("brandMark");if(el){el.replaceChildren();if(value){const img=doc.createElement("img");img.src=value;img.alt="Logo";img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:inherit";el.append(img)}else el.textContent="EI"}}
- else if(path==="contact.address"&&byId("addressText"))byId("addressText").textContent=value;
+ else if(path==="contact.phone"&&byId("phoneLink")){byId("phoneLink").textContent=value;byId("phoneLink").href="tel:"+value.replace(/[^+0-9]/g,"")}\n else if(path==="contact.whatsapp"&&byId("whatsappLink"))byId("whatsappLink").href="https://wa.me/"+value.replace(/[^0-9]/g,"");\n else if(path==="contact.address"&&byId("addressText"))byId("addressText").textContent=value;
  else if(path==="contact.hours"&&byId("hoursText"))byId("hoursText").textContent=value;
  else if(path.startsWith("reviews.")){const i=Number(path.split(".")[1]),field=path.split(".")[2],card=doc.querySelectorAll("#reviewGrid .review")[i];if(card){if(field==="name")card.querySelector("small").textContent=value;if(field==="text")card.querySelector("p").textContent="“"+value+"”";if(field==="rating")card.querySelector(".stars").textContent="★".repeat(Math.max(0,Math.min(5,Number(value)||0)))}}
 }
