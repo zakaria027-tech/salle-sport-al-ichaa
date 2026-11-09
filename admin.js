@@ -107,7 +107,7 @@ function resolveSelection(target,doc){
 function attachPreview(){
  const frame=$("sitePreview"),doc=frame.contentDocument;if(!doc||previewReady)return;previewReady=true;
  const style=doc.createElement("style");style.textContent="body *{cursor:crosshair!important}body [id],body [data-i18n],#reviewGrid .review{outline:1px dashed transparent;outline-offset:3px}body [id]:hover,body [data-i18n]:hover,#reviewGrid .review:hover{outline:2px dashed #00d978!important;outline-offset:3px}";doc.head.append(style);
- doc.addEventListener("click",e=>{const item=resolveSelection(e.target,doc);if(!item)return;e.preventDefault();e.stopPropagation();openEditor(item)},true);
+ doc.addEventListener("click",e=>{const item=resolveSelection(e.target,doc);if(!item)return;e.preventDefault();e.stopPropagation();openEditor(item);if(item.type==="image"){requestAnimationFrame(()=>{$("imageControls").scrollIntoView({behavior:"smooth",block:"nearest"});$("imageUpload").focus({preventScroll:true});});}},true);
 }
 async function loadContent(){
  const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;
