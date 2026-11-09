@@ -1,12 +1,91 @@
-const cfg=window.SUPABASE_CONFIG;const client=window.supabase?.createClient(cfg.url,cfg.anonKey);const $=id=>document.getElementById(id);let original=null;
-const defaultData={siteName:"Salle de Sport El-ichaa",logoUrl:"",heroImage:"",translations:{fr:{heroTitle:"Dépassez vos limites.\\nRévélez votre force.",heroText:"Un espace dédié à votre progression, à la musculation et aux arts martiaux.",aboutTitle:"La discipline d’aujourd’hui.\\nLa force de demain.",aboutText:"Bienvenue chez Salle de Sport El-ichaa.",fitnessTitle:"Fitness & Musculation",fitnessText:"Développez votre force, votre endurance et votre condition physique.",martialTitle:"Arts martiaux",martialText:"Travaillez la technique, la maîtrise de soi et la discipline.",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"À confirmer auprès du club"},ar:{heroTitle:"تجاوز حدودك.\\nواكتشف قوتك.",heroText:"فضاء مخصص لتطوير لياقتك البدنية وقوتك.",aboutTitle:"انضباط اليوم.\\nقوة الغد.",aboutText:"مرحباً بك في Salle de Sport El-ichaa.",fitnessTitle:"اللياقة البدنية وكمال الأجسام",fitnessText:"طوّر قوتك ولياقتك البدنية.",martialTitle:"الفنون القتالية",martialText:"طوّر تقنياتك وانضباطك.",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"يرجى تأكيد أوقات العمل مع النادي"},en:{heroTitle:"Push your limits.\\nUnlock your strength.",heroText:"A place dedicated to your progress.",aboutTitle:"Today's discipline.\\nTomorrow's strength.",aboutText:"Welcome to Salle de Sport El-ichaa.",fitnessTitle:"Fitness & Strength",fitnessText:"Build strength, endurance and overall fitness.",martialTitle:"Martial Arts",martialText:"Develop technique and discipline.",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"Please confirm opening hours with the club"}},images:{fitness:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85",martial:"https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&w=1000&q=85"},reviews:[{name:"Rayane Rizqy",text:"The best gym ever, staff are friendly.",rating:5},{name:"HaMzA",text:"Great gym and awesome service.",rating:5},{name:"Mo. Eloukhami",text:"Excellent service.",rating:5}],contact:{phone:"+212682327111",whatsapp:"212682327111",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"À confirmer auprès du club",maps:"https://www.google.com/maps/search/?api=1&query=CCPV%2BG7%20Agadir"}};
-function message(id,text,error=false){$(id).textContent=text;$(id).style.color=error?"#ff9292":"#8ff5b7"}
-function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("statusBox").textContent="Session active : "+user.email+" · Lecture et publication via les règles RLS."}
-async function load(){const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;original=data?.content||defaultData;$("contentEditor").value=JSON.stringify(original,null,2)}
-async function checkSession(){if(!client){message("loginMessage","Configuration Supabase absente.",true);return}const {data}=await client.auth.getSession();if(data.session){showDashboard(data.session.user);try{await load()}catch(e){message("saveMessage","Impossible de charger le contenu : "+e.message,true)}}}
-$("loginForm").addEventListener("submit",async e=>{e.preventDefault();message("loginMessage","Connexion…");const {data,error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){message("loginMessage",error.message,true);return}showDashboard(data.user);try{await load()}catch(err){message("saveMessage","Erreur de lecture : "+err.message,true)}});
-$("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();$("dashboard").hidden=true;$("loginPanel").hidden=false;$("password").value=""});
-$("formatBtn").addEventListener("click",()=>{try{$("contentEditor").value=JSON.stringify(JSON.parse($("contentEditor").value),null,2);message("saveMessage","JSON correctement formaté.")}catch(e){message("saveMessage","JSON invalide : "+e.message,true)}});
-$("resetBtn").addEventListener("click",()=>{if(confirm("Remplacer le brouillon par le contenu initial ?"))$("contentEditor").value=JSON.stringify(defaultData,null,2)});
-$("saveBtn").addEventListener("click",async()=>{let parsed;try{parsed=JSON.parse($("contentEditor").value)}catch(e){message("saveMessage","JSON invalide : "+e.message,true);return}if(!parsed||typeof parsed!=="object"||Array.isArray(parsed)){message("saveMessage","Le contenu doit être un objet JSON.",true);return}$("saveBtn").disabled=true;message("saveMessage","Publication en cours…");const {error}=await client.from("site_content").upsert({id:"main",content:parsed,updated_at:new Date().toISOString()},{onConflict:"id"});$("saveBtn").disabled=false;if(error){message("saveMessage","Échec : "+error.message,true);return}original=parsed;message("saveMessage","Contenu publié. Les visiteurs verront les changements après actualisation.")});
+const cfg=window.SUPABASE_CONFIG;
+const client=window.supabase?.createClient(cfg.url,cfg.anonKey);
+const $=id=>document.getElementById(id);
+const DEFAULT_CONTENT={
+ siteName:"Salle de Sport El-ichaa",logoUrl:"",heroImage:"",
+ translations:{
+  fr:{heroTitle:"Dépassez vos limites.\nRévélez votre force.",heroText:"Un espace dédié à votre progression, à la musculation et aux arts martiaux.",aboutTitle:"La discipline d’aujourd’hui.\nLa force de demain.",aboutText:"Bienvenue chez Salle de Sport El-ichaa.",fitnessTitle:"Fitness & Musculation",fitnessText:"Développez votre force, votre endurance et votre condition physique.",martialTitle:"Arts martiaux",martialText:"Travaillez la technique, la maîtrise de soi et la discipline.",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"À confirmer auprès du club"},
+  ar:{heroTitle:"تجاوز حدودك.\nواكتشف قوتك.",heroText:"فضاء مخصص لتطوير لياقتك البدنية وقوتك.",aboutTitle:"انضباط اليوم.\nقوة الغد.",aboutText:"مرحباً بك في Salle de Sport El-ichaa.",fitnessTitle:"اللياقة البدنية وكمال الأجسام",fitnessText:"طوّر قوتك ولياقتك البدنية.",martialTitle:"الفنون القتالية",martialText:"طوّر تقنياتك وانضباطك.",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"يرجى تأكيد أوقات العمل مع النادي"},
+  en:{heroTitle:"Push your limits.\nUnlock your strength.",heroText:"A place dedicated to your progress.",aboutTitle:"Today's discipline.\nTomorrow's strength.",aboutText:"Welcome to Salle de Sport El-ichaa.",fitnessTitle:"Fitness & Strength",fitnessText:"Build strength, endurance and overall fitness.",martialTitle:"Martial Arts",martialText:"Develop technique and discipline.",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"Please confirm opening hours with the club"}
+ },
+ images:{fitness:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85",martial:"https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&w=1000&q=85"},
+ reviews:[{name:"Rayane Rizqy",text:"The best gym ever, staff are friendly.",rating:5},{name:"HaMzA",text:"Great gym and awesome service.",rating:5},{name:"Mo. Eloukhami",text:"Excellent service.",rating:5}],
+ contact:{phone:"+212682327111",whatsapp:"212682327111",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"À confirmer auprès du club",maps:"https://www.google.com/maps/search/?api=1&query=CCPV%2BG7%20Agadir"},
+ uiTranslations:{}
+};
+let original=null,draft=null,selected=null,previewReady=false;
+const ID_FIELDS={
+ brandName:{path:"siteName",title:"Nom du club"},heroTitle:{path:"translations",key:"heroTitle",title:"Titre principal"},
+ heroText:{path:"translations",key:"heroText",title:"Description principale"},aboutTitle:{path:"translations",key:"aboutTitle",title:"Titre — À propos"},
+ aboutText:{path:"translations",key:"aboutText",title:"Texte — À propos"},fitnessTitle:{path:"translations",key:"fitnessTitle",title:"Titre — Fitness"},
+ fitnessText:{path:"translations",key:"fitnessText",title:"Texte — Fitness"},martialTitle:{path:"translations",key:"martialTitle",title:"Titre — Arts martiaux"},
+ martialText:{path:"translations",key:"martialText",title:"Texte — Arts martiaux"},addressText:{path:"contact.address",title:"Adresse"},
+ hoursText:{path:"contact.hours",title:"Horaires"},fitnessImage:{path:"images.fitness",title:"Image — Fitness",type:"image"},
+ martialImage:{path:"images.martial",title:"Image — Arts martiaux",type:"image"},heroImage:{path:"heroImage",title:"Image de couverture",type:"image"},
+ brandMark:{path:"logoUrl",title:"Logo du club",type:"image"}
+};
+function notify(id,text,error=false){const el=$(id);if(!el)return;el.textContent=text;el.classList.toggle("error",error);el.style.color=error?"var(--danger)":"var(--green)"}
+function clone(v){return JSON.parse(JSON.stringify(v))}
+function merge(base,extra){if(!extra||typeof extra!=="object"||Array.isArray(extra))return extra??base;const out=clone(base);for(const [k,v] of Object.entries(extra)){out[k]=v&&typeof v==="object"&&!Array.isArray(v)&&out[k]&&typeof out[k]==="object"&&!Array.isArray(out[k])?merge(out[k],v):v}return out}
+function getPath(obj,path){return path.split(".").reduce((v,k)=>v?.[k],obj)}
+function setPath(obj,path,value){const parts=path.split(".");let ref=obj;for(let i=0;i<parts.length-1;i++){if(!ref[parts[i]]||typeof ref[parts[i]]!=="object")ref[parts[i]]={};ref=ref[parts[i]]}ref[parts.at(-1)]=value}
+function language(){return $("editLanguage").value}
+function markDraft(){ $("saveState").textContent="Modifications non publiées"; $("saveState").style.color="var(--green)" }
+function setTextNode(el,value){if(!el)return;el.replaceChildren();String(value??"").split("\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
+function refreshPreview(path,value){
+ const frame=$("sitePreview"),doc=frame.contentDocument;if(!doc)return;
+ const byId=id=>doc.getElementById(id);
+ if(path==="siteName"){["brandName","footerName","copyrightName"].forEach(id=>{if(byId(id))byId(id).textContent=value});doc.title=value+" | Agadir"}
+ else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText"};if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}}
+ else if(path.startsWith("uiTranslations.")){const key=path.split(".")[2],el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}
+ else if(path==="images.fitness"||path==="images.martial"){const id=path.endsWith("fitness")?"fitnessImage":"martialImage";if(byId(id))byId(id).src=value}
+ else if(path==="heroImage"){const el=byId("heroImage");if(el)el.style.backgroundImage='linear-gradient(90deg,rgba(3,10,6,.90),rgba(3,10,6,.18)),url("'+value.replace(/["\\]/g,"")+'")'}
+ else if(path==="logoUrl"){const el=byId("brandMark");if(el){el.replaceChildren();if(value){const img=doc.createElement("img");img.src=value;img.alt="Logo";img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:inherit";el.append(img)}else el.textContent="EI"}}
+ else if(path==="contact.address"&&byId("addressText"))byId("addressText").textContent=value;
+ else if(path==="contact.hours"&&byId("hoursText"))byId("hoursText").textContent=value;
+ else if(path.startsWith("reviews.")){const i=Number(path.split(".")[1]),field=path.split(".")[2],card=doc.querySelectorAll("#reviewGrid .review")[i];if(card){if(field==="name")card.querySelector("small").textContent=value;if(field==="text")card.querySelector("p").textContent="“"+value+"”";if(field==="rating")card.querySelector(".stars").textContent="★".repeat(Math.max(0,Math.min(5,Number(value)||0)))}}
+}
+function openEditor(item){
+ selected=item;$("selectionEmpty").hidden=true;$("editorPanel").hidden=false;
+ $("selectedTitle").textContent=item.title;$("selectedHelp").textContent=item.help||"عدّل المحتوى ثم اضغط «تطبيق» لمعاينة النتيجة.";
+ $("valueLabel").hidden=item.type==="image";$("editValue").hidden=item.type==="image";$("imageControls").hidden=item.type!=="image";
+ if(item.type==="image"){const url=getPath(draft,item.path)||"";$("imagePreview").replaceChildren();if(url){const img=document.createElement("img");img.src=url;$("imagePreview").append(img)}$("editValue").value=url}
+ else $("editValue").value=item.value??"";
+ $("editMessage").textContent="";
+}
+function resolveSelection(target,doc){
+ const review=target.closest(".review");if(review){const cards=[...doc.querySelectorAll("#reviewGrid .review")],i=cards.indexOf(review);if(i<0)return null;let field="text";if(target.closest("small"))field="name";else if(target.closest(".stars"))field="rating";const path="reviews."+i+"."+field;return{path,title:"Avis client · "+(i+1),value:getPath(draft,path),type:field==="rating"?"number":"text",help:"Modifiez cet avis. Le changement sera publié sur le site après validation."}}
+ const keyed=target.closest("[id]");if(keyed&&ID_FIELDS[keyed.id]){const f=ID_FIELDS[keyed.id],path=f.path==="translations"?"translations."+language()+"."+f.key:f.path;return{path,title:f.title,value:getPath(draft,path),type:f.type||"text",help:f.type==="image"?"Choisissez une nouvelle image depuis votre appareil.":"Modifiez ce texte dans la langue sélectionnée."}}
+ const translated=target.closest("[data-i18n]");if(translated){const key=translated.dataset.i18n,path="uiTranslations."+language()+"."+key;return{path,title:"Texte du site · "+key,value:getPath(draft,path)??translated.textContent,type:"text",help:"Ce libellé sera personnalisé pour la langue sélectionnée."}}
+ return null;
+}
+function attachPreview(){
+ const frame=$("sitePreview"),doc=frame.contentDocument;if(!doc||previewReady)return;previewReady=true;
+ const style=doc.createElement("style");style.textContent="body *{cursor:crosshair!important}body [id],body [data-i18n],#reviewGrid .review{outline:1px dashed transparent;outline-offset:3px}body [id]:hover,body [data-i18n]:hover,#reviewGrid .review:hover{outline:2px dashed #00d978!important;outline-offset:3px}";doc.head.append(style);
+ doc.addEventListener("click",e=>{const item=resolveSelection(e.target,doc);if(!item)return;e.preventDefault();e.stopPropagation();openEditor(item)},true);
+}
+async function loadContent(){
+ const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;
+ original=merge(DEFAULT_CONTENT,data?.content||{});draft=clone(original);$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
+}
+function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("logoutBtn").hidden=false;notify("loginMessage","");}
+async function afterLogin(user){showDashboard(user);try{await loadContent()}catch(e){notify("saveState","Erreur de chargement : "+e.message,true)}}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();notify("loginMessage","Connexion en cours…");const {data,error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){notify("loginMessage",error.message,true);return}await afterLogin(data.user)});
+$("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();$("dashboard").hidden=true;$("loginPanel").hidden=false;$("logoutBtn").hidden=true;$("password").value="";});
+$("themeToggle").addEventListener("click",()=>{const next=document.documentElement.dataset.theme==="light"?"dark":"light";document.documentElement.dataset.theme=next;localStorage.setItem("elichaa-admin-theme",next);$("themeToggle").textContent=next==="dark"?"☼":"☾"});
+const savedTheme=localStorage.getItem("elichaa-admin-theme")||"dark";document.documentElement.dataset.theme=savedTheme;$("themeToggle").textContent=savedTheme==="dark"?"☼":"☾";
+$("sitePreview").addEventListener("load",()=>{previewReady=false;attachPreview()});
+$("editLanguage").addEventListener("change",()=>{const doc=$("sitePreview").contentDocument,sel=doc?.getElementById("languageSelect");if(sel){sel.value=language();sel.dispatchEvent(new Event("change",{bubbles:true}))}openEditorEmpty()});
+function openEditorEmpty(){$("editorPanel").hidden=true;$("selectionEmpty").hidden=false;selected=null}
+$("applyEdit").addEventListener("click",()=>{if(!selected)return;let value=$("editValue").value;if(selected.type==="number"){value=Number(value);if(!Number.isFinite(value)||value<0||value>5){notify("editMessage","La note doit être comprise entre 0 et 5.",true);return}}setPath(draft,selected.path,value);refreshPreview(selected.path,value);if(selected.type==="image"){$("imagePreview").replaceChildren();if(value){const img=document.createElement("img");img.src=value;$("imagePreview").append(img)}}markDraft();notify("editMessage","Modification appliquée à l’aperçu.")});
+$("cancelEdit").addEventListener("click",openEditorEmpty);
+$("imageUpload").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file||!selected)return;if(!file.type.startsWith("image/")){notify("editMessage","Veuillez choisir un fichier image.",true);return}if(file.size>5*1024*1024){notify("editMessage","L’image dépasse la limite de 5 Mo.",true);return}
+ const safeName=file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-");const path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+safeName;notify("editMessage","Téléversement de l’image…");$("imageUpload").disabled=true;
+ const {error}=await client.storage.from("site-media").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});$("imageUpload").disabled=false;
+ if(error){notify("editMessage","Échec du téléversement : "+error.message,true);e.target.value="";return}
+ const {data}=client.storage.from("site-media").getPublicUrl(path);setPath(draft,selected.path,data.publicUrl);refreshPreview(selected.path,data.publicUrl);$("imagePreview").replaceChildren();const img=document.createElement("img");img.src=data.publicUrl;$("imagePreview").append(img);$("editValue").value=data.publicUrl;markDraft();notify("editMessage","Image ajoutée à l’aperçu. Cliquez sur Publier pour la mettre en ligne.");e.target.value="";
+});
+$("publishBtn").addEventListener("click",async()=>{if(!draft)return;$("publishBtn").disabled=true;$("publishBtn").textContent="Publication…";const {error}=await client.from("site_content").upsert({id:"main",content:draft,updated_at:new Date().toISOString()},{onConflict:"id"});$("publishBtn").disabled=false;$("publishBtn").textContent="Publier les modifications ↗";if(error){notify("saveState","Échec de publication : "+error.message,true);return}original=clone(draft);$("saveState").textContent="Publié avec succès";$("saveState").style.color="var(--green)";});
+$("discardBtn").addEventListener("click",async()=>{if(!confirm("Annuler toutes les modifications non publiées ?"))return;try{await loadContent();$("sitePreview").contentWindow.location.reload();openEditorEmpty()}catch(e){notify("saveState","Impossible de recharger : "+e.message,true)}});
+async function checkSession(){if(!client){notify("loginMessage","Configuration Supabase absente.",true);return}const {data,error}=await client.auth.getSession();if(error){notify("loginMessage",error.message,true);return}if(data.session)await afterLogin(data.session.user)}
 checkSession();
