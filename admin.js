@@ -1,6 +1,7 @@
 const cfg=window.SUPABASE_CONFIG;
 const client=window.supabase?.createClient(cfg.url,cfg.anonKey);
 const $=id=>document.getElementById(id);
+const GYM_MAPS_URL = "https://www.google.com/maps/place/Salle+de+Sport+El-ichaa/@30.4362711,-9.5566428,81m/data=!3m1!1e3!4m6!3m5!1s0xdb3b710adb9e99b:0xe95bc6c0277a1800!8m2!3d30.4362533!4d-9.5568238!16s%2Fg%2F11s7y2k6th?entry=ttu&g_ep=EgoyMDI2MDkyNy4xIKXMDSoASAFQAw%3D%3D";
 const DEFAULT_CONTENT={
  siteName:"Salle de Sport El-ichaa",logoUrl:"",heroImage:"",
  translations:{
@@ -10,7 +11,7 @@ const DEFAULT_CONTENT={
  },
  images:{fitness:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85",martial:"https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&w=1000&q=85"},
  reviews:[{name:"Rayane Rizqy",text:"The best gym ever, staff are friendly.",rating:5},{name:"HaMzA",text:"Great gym and awesome service.",rating:5},{name:"Mo. Eloukhami",text:"Excellent service.",rating:5}],
- contact:{phone:"+212682327111",whatsapp:"212682327111",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"À confirmer auprès du club",maps:"https://www.google.com/maps/search/?api=1&query=CCPV%2BG7%20Agadir"},
+ contact:{phone:"+212682327111",whatsapp:"212682327111",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"À confirmer auprès du club",maps:GYM_MAPS_URL},
  uiTranslations:{},colors:{dark:{bg:"#07100b",surface:"#0d1811",surface2:"#132219",text:"#f4f8f4",muted:"#a3b0a6",green:"#00e676",green2:"#0b8c4a",header:"#050c08",line:"#26362b"},light:{bg:"#f4f7f3",surface:"#ffffff",surface2:"#e9f1ea",text:"#102017",muted:"#5f6e63",green:"#078b48",green2:"#08743d",header:"#f8fbf8",line:"#dce5dd"}}
 };
 let original=null,draft=null,selected=null,previewReady=false;
@@ -83,7 +84,7 @@ function attachPreview(){
 }
 async function loadContent(){
  const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;
- original=merge(DEFAULT_CONTENT,data?.content||{});draft=clone(original);setupColorEditor();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
+ original=merge(DEFAULT_CONTENT,data?.content||{});original.contact=original.contact||{};original.contact.maps=GYM_MAPS_URL;draft=clone(original);setupColorEditor();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
 }
 function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("logoutBtn").hidden=false;notify("loginMessage","");attachPreview();}
 async function afterLogin(user){showDashboard(user);try{await loadContent()}catch(e){notify("saveState","Erreur de chargement : "+e.message,true)}}
