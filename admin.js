@@ -70,7 +70,7 @@ async function loadContent(){
  const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;
  original=merge(DEFAULT_CONTENT,data?.content||{});draft=clone(original);$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
 }
-function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("logoutBtn").hidden=false;notify("loginMessage","");}
+function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("logoutBtn").hidden=false;notify("loginMessage","");attachPreview();}
 async function afterLogin(user){showDashboard(user);try{await loadContent()}catch(e){notify("saveState","Erreur de chargement : "+e.message,true)}}
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();notify("loginMessage","Connexion en cours…");const {data,error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){notify("loginMessage",error.message,true);return}await afterLogin(data.user)});
 $("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();$("dashboard").hidden=true;$("loginPanel").hidden=false;$("logoutBtn").hidden=true;$("password").value="";});
