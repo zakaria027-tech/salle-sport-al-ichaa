@@ -19,7 +19,17 @@ window.SITE_I18N=I18N;
 let content=structuredClone(DEFAULT_CONTENT), lang=localStorage.getItem("elichaa-lang")||"fr";
 const $=id=>document.getElementById(id);
 function setText(id,value){if($(id)&&value!==undefined)$(id).textContent=value}
-function applyThemeColors(){const mode=document.documentElement.dataset.theme==="light"?"light":"dark",p=content.colors?.[mode];if(!p)return;const vars={bg:"--bg",surface:"--surface",surface2:"--surface2",text:"--text",muted:"--muted",green:"--green",green2:"--green2",header:"--header",line:"--line"};for(const [k,v] of Object.entries(vars))if(p[k])document.documentElement.style.setProperty(v,p[k]);}
+function applyThemeColors(){
+ const mode=document.documentElement.dataset.theme==="light"?"light":"dark",p=content.colors?.[mode];
+ if(p){const vars={bg:"--bg",surface:"--surface",surface2:"--surface2",text:"--text",muted:"--muted",green:"--green",green2:"--green2",header:"--header",line:"--line"};for(const [k,v] of Object.entries(vars))if(p[k])document.documentElement.style.setProperty(v,p[k]);}
+ document.querySelectorAll("[data-admin-text-color]").forEach(el=>{el.style.removeProperty("--admin-text-color");el.style.removeProperty("color");el.removeAttribute("data-admin-text-color");});
+ const apply=(el,color)=>{if(el&&/^#[0-9a-f]{6}$/i.test(color)){el.style.setProperty("--admin-text-color",color);el.style.color="var(--admin-text-color)";el.setAttribute("data-admin-text-color","1");}};
+ for(const [key,color] of Object.entries(content.textColors?.[mode]||{})){const parts=key.split(":");
+  if(parts[0]==="id")apply($(parts[1]),color);
+  else if(parts[0]==="i18n")document.querySelectorAll("[data-i18n]").forEach(el=>{if(el.dataset.i18n===parts.slice(1).join(":"))apply(el,color)});
+  else if(parts[0]==="review"){const card=document.querySelectorAll("#reviewGrid .review")[Number(parts[1])];apply(card?.querySelector(parts[2]==="name"?"small":parts[2]==="rating"?".stars":"p"),color);}
+ }
+}
 function applyContent(){
  const t=content.translations?.[lang]||content.translations.fr;
  document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";document.body.classList.toggle("rtl",lang==="ar");

@@ -41,6 +41,13 @@
             <div class="selected-label">ÉLÉMENT SÉLECTIONNÉ</div><h3 id="selectedTitle">Modifier le texte</h3><p id="selectedHelp" class="help-text"></p>
             <div id="multilingualControls" class="multilingual-controls" hidden><label class="language-field">Français<textarea id="valueFr" rows="3"></textarea></label><label class="language-field">العربية<textarea id="valueAr" rows="3" dir="rtl"></textarea></label><label class="language-field">English<textarea id="valueEn" rows="3"></textarea></label></div><label id="valueLabel" for="editValue">Contenu</label><textarea id="editValue" rows="4"></textarea>
             <div id="imageControls" hidden><div id="imagePreview" class="image-preview"></div><label class="upload-button" for="imageUpload">＋ Choisir une image depuis l’appareil</label><input id="imageUpload" type="file" accept="image/*" hidden><p class="help-text">Formats image · 5 Mo maximum. L’image sera envoyée vers le stockage sécurisé du site.</p></div>
+            <section id="textColorControls" class="text-color-controls" hidden>
+              <div class="selected-label">COULEUR DU TEXTE SÉLECTIONNÉ</div>
+              <p class="help-text">Choisissez une couleur différente pour ce texte dans chaque thème. Les réglages sont indépendants.</p>
+              <label class="theme-color-field">لون النص في الوضع الداكن<input id="textColorDark" type="color" value="#f4f8f4"></label>
+              <label class="theme-color-field">لون النص في الوضع الفاتح<input id="textColorLight" type="color" value="#102017"></label>
+              <button id="applyTextColors" class="button button-primary" type="button">تطبيق لون النص في الوضعين</button>
+            </section>
             <div class="editor-buttons"><button id="cancelEdit" class="button button-quiet" type="button">Annuler</button><button id="applyEdit" class="button button-primary" type="button">Appliquer</button></div>
             <p id="editMessage" class="message" role="status"></p>
           </section>
