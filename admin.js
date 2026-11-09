@@ -11,7 +11,7 @@ const DEFAULT_CONTENT={
  images:{fitness:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85",martial:"https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&w=1000&q=85"},
  reviews:[{name:"Rayane Rizqy",text:"The best gym ever, staff are friendly.",rating:5},{name:"HaMzA",text:"Great gym and awesome service.",rating:5},{name:"Mo. Eloukhami",text:"Excellent service.",rating:5}],
  contact:{phone:"+212682327111",whatsapp:"212682327111",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"À confirmer auprès du club",maps:"https://www.google.com/maps/search/?api=1&query=CCPV%2BG7%20Agadir"},
- uiTranslations:{}
+ uiTranslations:{},colors:{dark:{bg:"#07100b",surface:"#0d1811",surface2:"#132219",text:"#f4f8f4",muted:"#a3b0a6",green:"#00e676",green2:"#0b8c4a",header:"#050c08",line:"#26362b"},light:{bg:"#f4f7f3",surface:"#ffffff",surface2:"#e9f1ea",text:"#102017",muted:"#5f6e63",green:"#078b48",green2:"#08743d",header:"#f8fbf8",line:"#dce5dd"}}
 };
 let original=null,draft=null,selected=null,previewReady=false;
 const ID_FIELDS={
@@ -30,6 +30,9 @@ function merge(base,extra){if(!extra||typeof extra!=="object"||Array.isArray(ext
 function getPath(obj,path){return path.split(".").reduce((v,k)=>v?.[k],obj)}
 function setPath(obj,path,value){const parts=path.split(".");let ref=obj;for(let i=0;i<parts.length-1;i++){if(!ref[parts[i]]||typeof ref[parts[i]]!=="object")ref[parts[i]]={};ref=ref[parts[i]]}ref[parts.at(-1)]=value}
 function language(){return $("editLanguage").value}
+const COLOR_DEFAULTS={dark:{bg:"#07100b",surface:"#0d1811",surface2:"#132219",text:"#f4f8f4",muted:"#a3b0a6",green:"#00e676",green2:"#0b8c4a",header:"#050c08",line:"#26362b"},light:{bg:"#f4f7f3",surface:"#ffffff",surface2:"#e9f1ea",text:"#102017",muted:"#5f6e63",green:"#078b48",green2:"#08743d",header:"#f8fbf8",line:"#dce5dd"}};
+function fillColorInputs(){const mode=$("colorTheme").value,p={...COLOR_DEFAULTS[mode],...(draft?.colors?.[mode]||{})};for(const k of Object.keys(COLOR_DEFAULTS.dark))$("color"+k[0].toUpperCase()+k.slice(1)).value=p[k];}
+function setupColorEditor(){fillColorInputs();$("colorTheme").onchange=fillColorInputs;$("applyColors").onclick=()=>{const mode=$("colorTheme").value;draft.colors=draft.colors||clone(COLOR_DEFAULTS);draft.colors[mode]={};for(const k of Object.keys(COLOR_DEFAULTS[mode]))draft.colors[mode][k]=$("color"+k[0].toUpperCase()+k.slice(1)).value;const doc=$("sitePreview").contentDocument;if(doc){doc.documentElement.dataset.theme=mode;const vars={bg:"--bg",surface:"--surface",surface2:"--surface2",text:"--text",muted:"--muted",green:"--green",green2:"--green2",header:"--header",line:"--line"};for(const [k,v] of Object.entries(vars))doc.documentElement.style.setProperty(v,draft.colors[mode][k]);}markDraft();notify("saveState","تم تطبيق ألوان الوضع "+(mode==="dark"?"الداكن":"الفاتح")+" على المعاينة.");};}
 function markDraft(){ $("saveState").textContent="Modifications non publiées"; $("saveState").style.color="var(--green)" }
 function setTextNode(el,value){if(!el)return;el.replaceChildren();String(value??"").split("\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
 function refreshPreview(path,value){
@@ -52,14 +55,8 @@ function openEditor(item){
  $("selectedTitle").textContent=item.title;$("selectedHelp").textContent=item.help||"عدّل المحتوى ثم اضغط «تطبيق» لمعاينة النتيجة.";
  const multi=!!item.multilingual;
  $("multilingualControls").hidden=!multi;$("valueLabel").hidden=item.type==="image"||multi;$("editValue").hidden=item.type==="image"||multi;$("imageControls").hidden=item.type!=="image";
- $("multilingualControls").replaceChildren();
- if(multi){
-  for(const [code,label] of [["fr","Français"],["ar","العربية"],["en","English"]]){
-   const wrap=document.createElement("div"),lab=document.createElement("label"),area=document.createElement("textarea");
-   lab.textContent=label;area.rows=3;area.dataset.language=code;area.value=getPath(draft,item.root+"."+code+"."+item.key)??"";
-   wrap.className="language-field";wrap.append(lab,area);$("multilingualControls").append(wrap);
-  }
- }else if(item.type==="image"){const url=getPath(draft,item.path)||"";$("imagePreview").replaceChildren();if(url){const img=document.createElement("img");img.src=url;$("imagePreview").append(img)}$("editValue").value=url}
+ if(multi){$("valueFr").value=getPath(draft,item.root+".fr."+item.key)??"";$("valueAr").value=getPath(draft,item.root+".ar."+item.key)??"";$("valueEn").value=getPath(draft,item.root+".en."+item.key)??"";}
+ else if(item.type==="image"){const url=getPath(draft,item.path)||"";$("imagePreview").replaceChildren();if(url){const img=document.createElement("img");img.src=url;$("imagePreview").append(img)}$("editValue").value=url;}
  else $("editValue").value=item.value??"";
  $("editMessage").textContent="";
 }
@@ -76,7 +73,7 @@ function attachPreview(){
 }
 async function loadContent(){
  const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;
- original=merge(DEFAULT_CONTENT,data?.content||{});draft=clone(original);$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
+ original=merge(DEFAULT_CONTENT,data?.content||{});draft=clone(original);setupColorEditor();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
 }
 function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("logoutBtn").hidden=false;notify("loginMessage","");attachPreview();}
 async function afterLogin(user){showDashboard(user);try{await loadContent()}catch(e){notify("saveState","Erreur de chargement : "+e.message,true)}}
@@ -87,7 +84,7 @@ const savedTheme=localStorage.getItem("elichaa-admin-theme")||"dark";document.do
 $("sitePreview").addEventListener("load",()=>{previewReady=false;attachPreview()});
 $("editLanguage").addEventListener("change",()=>{const doc=$("sitePreview").contentDocument,sel=doc?.getElementById("languageSelect");if(sel){sel.value=language();sel.dispatchEvent(new Event("change",{bubbles:true}))}openEditorEmpty()});
 function openEditorEmpty(){$("editorPanel").hidden=true;$("selectionEmpty").hidden=false;selected=null}
-$("applyEdit").addEventListener("click",()=>{if(!selected)return;if(selected.multilingual){for(const area of $("multilingualControls").querySelectorAll("textarea[data-language]"))setPath(draft,selected.root+"."+area.dataset.language+"."+selected.key,area.value);const activePath=selected.root+"."+language()+"."+selected.key;refreshPreview(activePath,getPath(draft,activePath));}else{let value=$("editValue").value;if(selected.type==="number"){value=Number(value);if(!Number.isFinite(value)||value<0||value>5){notify("editMessage","La note doit être comprise entre 0 et 5.",true);return}}setPath(draft,selected.path,value);refreshPreview(selected.path,value);if(selected.type==="image"){$("imagePreview").replaceChildren();if(value){const img=document.createElement("img");img.src=value;$("imagePreview").append(img)}}}markDraft();notify("editMessage",selected.multilingual?"Les trois traductions ont été appliquées à l’aperçu.":"Modification appliquée à l’aperçu.")});
+$("applyEdit").addEventListener("click",()=>{if(!selected)return;if(selected.multilingual){for(const [code,id] of [["fr","valueFr"],["ar","valueAr"],["en","valueEn"]])setPath(draft,selected.root+"."+code+"."+selected.key,$(id).value);const activePath=selected.root+"."+language()+"."+selected.key;refreshPreview(activePath,getPath(draft,activePath));}else{let value=$("editValue").value;if(selected.type==="number"){value=Number(value);if(!Number.isFinite(value)||value<0||value>5){notify("editMessage","La note doit être comprise entre 0 et 5.",true);return}}setPath(draft,selected.path,value);refreshPreview(selected.path,value);if(selected.type==="image"){$("imagePreview").replaceChildren();if(value){const img=document.createElement("img");img.src=value;$("imagePreview").append(img)}}}markDraft();notify("editMessage",selected.multilingual?"Les trois traductions ont été appliquées à l’aperçu.":"Modification appliquée à l’aperçu.")});
 $("cancelEdit").addEventListener("click",openEditorEmpty);
 $("imageUpload").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file||!selected)return;if(!file.type.startsWith("image/")){notify("editMessage","Veuillez choisir un fichier image.",true);return}if(file.size>5*1024*1024){notify("editMessage","L’image dépasse la limite de 5 Mo.",true);return}
  const safeName=file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-");const path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+safeName;notify("editMessage","Téléversement de l’image…");$("imageUpload").disabled=true;
