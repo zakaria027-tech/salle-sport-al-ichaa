@@ -19,8 +19,8 @@ const ID_FIELDS={
  heroText:{path:"translations",key:"heroText",title:"Description principale"},aboutTitle:{path:"translations",key:"aboutTitle",title:"Titre — À propos"},
  aboutText:{path:"translations",key:"aboutText",title:"Texte — À propos"},fitnessTitle:{path:"translations",key:"fitnessTitle",title:"Titre — Fitness"},
  fitnessText:{path:"translations",key:"fitnessText",title:"Texte — Fitness"},martialTitle:{path:"translations",key:"martialTitle",title:"Titre — Arts martiaux"},
- martialText:{path:"translations",key:"martialText",title:"Texte — Arts martiaux"},addressText:{path:"contact.address",title:"Adresse"},
- hoursText:{path:"contact.hours",title:"Horaires"},fitnessImage:{path:"images.fitness",title:"Image — Fitness",type:"image"},
+ martialText:{path:"translations",key:"martialText",title:"Texte — Arts martiaux"},addressText:{path:"translations",key:"address",title:"Adresse"},
+ hoursText:{path:"translations",key:"hours",title:"Horaires"},fitnessImage:{path:"images.fitness",title:"Image — Fitness",type:"image"},
  martialImage:{path:"images.martial",title:"Image — Arts martiaux",type:"image"},heroImage:{path:"heroImage",title:"Image de couverture",type:"image"},
  brandMark:{path:"logoUrl",title:"Logo du club",type:"image"},phoneLink:{path:"contact.phone",title:"Numéro de téléphone"},whatsappLink:{path:"contact.whatsapp",title:"Numéro WhatsApp"}
 };
@@ -36,7 +36,7 @@ function refreshPreview(path,value){
  const frame=$("sitePreview"),doc=frame.contentDocument;if(!doc)return;
  const byId=id=>doc.getElementById(id);
  if(path==="siteName"){["brandName","footerName","copyrightName"].forEach(id=>{if(byId(id))byId(id).textContent=value});doc.title=value+" | Agadir"}
- else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText"};if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}}
+ else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText",address:"addressText",hours:"hoursText"};if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}}
  else if(path.startsWith("uiTranslations.")){const key=path.split(".")[2],el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}
  else if(path==="images.fitness"||path==="images.martial"){const id=path.endsWith("fitness")?"fitnessImage":"martialImage";if(byId(id))byId(id).src=value}
  else if(path==="heroImage"){const el=byId("heroImage");if(el)el.style.backgroundImage='linear-gradient(90deg,rgba(3,10,6,.90),rgba(3,10,6,.18)),url("'+value.replace(/["\\]/g,"")+'")'}
@@ -50,15 +50,23 @@ function refreshPreview(path,value){
 function openEditor(item){
  selected=item;$("selectionEmpty").hidden=true;$("editorPanel").hidden=false;
  $("selectedTitle").textContent=item.title;$("selectedHelp").textContent=item.help||"عدّل المحتوى ثم اضغط «تطبيق» لمعاينة النتيجة.";
- $("valueLabel").hidden=item.type==="image";$("editValue").hidden=item.type==="image";$("imageControls").hidden=item.type!=="image";
- if(item.type==="image"){const url=getPath(draft,item.path)||"";$("imagePreview").replaceChildren();if(url){const img=document.createElement("img");img.src=url;$("imagePreview").append(img)}$("editValue").value=url}
+ const multi=!!item.multilingual;
+ $("multilingualControls").hidden=!multi;$("valueLabel").hidden=item.type==="image"||multi;$("editValue").hidden=item.type==="image"||multi;$("imageControls").hidden=item.type!=="image";
+ $("multilingualControls").replaceChildren();
+ if(multi){
+  for(const [code,label] of [["fr","Français"],["ar","العربية"],["en","English"]]){
+   const wrap=document.createElement("div"),lab=document.createElement("label"),area=document.createElement("textarea");
+   lab.textContent=label;area.rows=3;area.dataset.language=code;area.value=getPath(draft,item.root+"."+code+"."+item.key)??"";
+   wrap.className="language-field";wrap.append(lab,area);$("multilingualControls").append(wrap);
+  }
+ }else if(item.type==="image"){const url=getPath(draft,item.path)||"";$("imagePreview").replaceChildren();if(url){const img=document.createElement("img");img.src=url;$("imagePreview").append(img)}$("editValue").value=url}
  else $("editValue").value=item.value??"";
  $("editMessage").textContent="";
 }
 function resolveSelection(target,doc){
  const review=target.closest(".review");if(review){const cards=[...doc.querySelectorAll("#reviewGrid .review")],i=cards.indexOf(review);if(i<0)return null;let field="text";if(target.closest("small"))field="name";else if(target.closest(".stars"))field="rating";const path="reviews."+i+"."+field;return{path,title:"Avis client · "+(i+1),value:getPath(draft,path),type:field==="rating"?"number":"text",help:"Modifiez cet avis. Le changement sera publié sur le site après validation."}}
- const keyed=target.closest("[id]");if(keyed&&ID_FIELDS[keyed.id]){const f=ID_FIELDS[keyed.id],path=f.path==="translations"?"translations."+language()+"."+f.key:f.path;return{path,title:f.title,value:getPath(draft,path),type:f.type||"text",help:f.type==="image"?"Choisissez une nouvelle image depuis votre appareil.":"Modifiez ce texte dans la langue sélectionnée."}}
- const translated=target.closest("[data-i18n]");if(translated){const key=translated.dataset.i18n,path="uiTranslations."+language()+"."+key;return{path,title:"Texte du site · "+key,value:getPath(draft,path)??translated.textContent,type:"text",help:"Ce libellé sera personnalisé pour la langue sélectionnée."}}
+ const keyed=target.closest("[id]");if(keyed&&ID_FIELDS[keyed.id]){const f=ID_FIELDS[keyed.id],path=f.path==="translations"?"translations."+language()+"."+f.key:f.path;return{path,root:f.path==="translations"?"translations":null,key:f.key||null,multilingual:f.path==="translations",title:f.title,value:getPath(draft,path),type:f.type||"text",help:f.type==="image"?"Choisissez une nouvelle image depuis votre appareil.":f.path==="translations"?"Modifiez les trois versions linguistiques du texte.":"Modifiez ce texte."}}
+ const translated=target.closest("[data-i18n]");if(translated){const key=translated.dataset.i18n,path="uiTranslations."+language()+"."+key;return{path,root:"uiTranslations",key,multilingual:true,title:"Texte du site · "+key,value:getPath(draft,path)??translated.textContent,type:"text",help:"Modifiez les trois versions linguistiques de ce libellé."}}
  return null;
 }
 function attachPreview(){
@@ -79,7 +87,7 @@ const savedTheme=localStorage.getItem("elichaa-admin-theme")||"dark";document.do
 $("sitePreview").addEventListener("load",()=>{previewReady=false;attachPreview()});
 $("editLanguage").addEventListener("change",()=>{const doc=$("sitePreview").contentDocument,sel=doc?.getElementById("languageSelect");if(sel){sel.value=language();sel.dispatchEvent(new Event("change",{bubbles:true}))}openEditorEmpty()});
 function openEditorEmpty(){$("editorPanel").hidden=true;$("selectionEmpty").hidden=false;selected=null}
-$("applyEdit").addEventListener("click",()=>{if(!selected)return;let value=$("editValue").value;if(selected.type==="number"){value=Number(value);if(!Number.isFinite(value)||value<0||value>5){notify("editMessage","La note doit être comprise entre 0 et 5.",true);return}}setPath(draft,selected.path,value);refreshPreview(selected.path,value);if(selected.type==="image"){$("imagePreview").replaceChildren();if(value){const img=document.createElement("img");img.src=value;$("imagePreview").append(img)}}markDraft();notify("editMessage","Modification appliquée à l’aperçu.")});
+$("applyEdit").addEventListener("click",()=>{if(!selected)return;if(selected.multilingual){for(const area of $("multilingualControls").querySelectorAll("textarea[data-language]"))setPath(draft,selected.root+"."+area.dataset.language+"."+selected.key,area.value);const activePath=selected.root+"."+language()+"."+selected.key;refreshPreview(activePath,getPath(draft,activePath));}else{let value=$("editValue").value;if(selected.type==="number"){value=Number(value);if(!Number.isFinite(value)||value<0||value>5){notify("editMessage","La note doit être comprise entre 0 et 5.",true);return}}setPath(draft,selected.path,value);refreshPreview(selected.path,value);if(selected.type==="image"){$("imagePreview").replaceChildren();if(value){const img=document.createElement("img");img.src=value;$("imagePreview").append(img)}}}markDraft();notify("editMessage",selected.multilingual?"Les trois traductions ont été appliquées à l’aperçu.":"Modification appliquée à l’aperçu.")});
 $("cancelEdit").addEventListener("click",openEditorEmpty);
 $("imageUpload").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file||!selected)return;if(!file.type.startsWith("image/")){notify("editMessage","Veuillez choisir un fichier image.",true);return}if(file.size>5*1024*1024){notify("editMessage","L’image dépasse la limite de 5 Mo.",true);return}
  const safeName=file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-");const path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+safeName;notify("editMessage","Téléversement de l’image…");$("imageUpload").disabled=true;
