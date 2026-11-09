@@ -27,7 +27,7 @@ function applyContent(){
  $("heroTitle").innerHTML=(t.heroTitle||"").replace(/\\n/g,"<br>");
  $("aboutTitle").innerHTML=(t.aboutTitle||"").replace(/\\n/g,"<br>");
  $("fitnessImage").src=content.images?.fitness||DEFAULT_CONTENT.images.fitness;$("martialImage").src=content.images?.martial||DEFAULT_CONTENT.images.martial;
- if(content.heroImage)$("heroImage")?.style.setProperty("--hero-image",`url("${content.heroImage}")`);
+ if(content.heroImage)$("heroImage")?.style.setProperty("backgroundImage",`linear-gradient(90deg,rgba(3,10,6,.90),rgba(3,10,6,.18)),url("${content.heroImage}")`);
  if(content.logoUrl){$("brandMark").innerHTML=`<img src="${escapeAttr(content.logoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;}
  $("whatsappLink").href="https://wa.me/"+(content.contact?.whatsapp||"212682327111");
  $("addressText").textContent=content.contact?.address||t.address;$("hoursText").textContent=content.contact?.hours||t.hours;
