@@ -46,6 +46,7 @@ function setTextNode(el,value){if(!el)return;el.replaceChildren();String(value??
 function refreshPreview(path,value){
  const frame=$("sitePreview"),doc=frame.contentDocument;if(!doc)return;
  const byId=id=>doc.getElementById(id);
+ if(path.startsWith("customImages.")){const key=path.slice("customImages.".length),el=doc.querySelector('[data-admin-image="'+key.replace(/["\\]/g,"")+'"]');if(el&&el.tagName==="IMG")el.src=value;return;}
  if(path==="siteName"){["brandName","footerName","copyrightName"].forEach(id=>{if(byId(id))byId(id).textContent=value});doc.title=value+" | Agadir"}
  else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText",address:"addressText",hours:"hoursText"};if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}}
  else if(path.startsWith("uiTranslations.")){const key=path.split(".")[2],el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}
@@ -101,12 +102,14 @@ function openEditor(item){
 function resolveSelection(target,doc){
  const review=target.closest(".review");if(review){const cards=[...doc.querySelectorAll("#reviewGrid .review")],i=cards.indexOf(review);if(i<0)return null;let field="text";if(target.closest("small"))field="name";else if(target.closest(".stars"))field="rating";const path="reviews."+i+"."+field;return{path,colorKey:"review:"+i+":"+field,title:"Avis client · "+(i+1),value:getPath(draft,path),type:field==="rating"?"number":"text",help:"Modifiez cet avis. Le changement sera publié sur le site après validation."}}
  const keyed=target.closest("[id]");if(keyed&&ID_FIELDS[keyed.id]){const f=ID_FIELDS[keyed.id],path=f.path==="translations"?"translations."+language()+"."+f.key:f.path;return{path,colorKey:f.type==="image"?null:"id:"+keyed.id,root:f.path==="translations"?"translations":null,key:f.key||null,multilingual:f.path==="translations",title:f.title,value:getPath(draft,path),type:f.type||"text",help:f.type==="image"?"Choisissez une nouvelle image depuis votre appareil.":f.path==="translations"?"Modifiez les trois versions linguistiques du texte.":"Modifiez ce texte."}}
+ const image=target.closest("img");if(image){const key=image.dataset.adminImage||image.id;if(key){const path="customImages."+key;return{path,title:"Image — "+(image.alt||image.id||key),type:"image",value:getPath(draft,path)||image.currentSrc||image.src,help:"Remplacez cette image depuis votre appareil. Le changement sera enregistré dans la configuration du site."}}}
  const translated=target.closest("[data-i18n]");if(translated){const key=translated.dataset.i18n,path="uiTranslations."+language()+"."+key;return{path,colorKey:"i18n:"+key,root:"uiTranslations",key,multilingual:true,title:"Texte du site · "+key,value:getPath(draft,path)??translated.textContent,type:"text",help:"Modifiez les trois versions linguistiques de ce libellé."}}
  return null;
 }
 function attachPreview(){
  const frame=$("sitePreview"),doc=frame.contentDocument;if(!doc||previewReady)return;previewReady=true;
- const style=doc.createElement("style");style.textContent="body *{cursor:crosshair!important}body [id],body [data-i18n],#reviewGrid .review{outline:1px dashed transparent;outline-offset:3px}body [id]:hover,body [data-i18n]:hover,#reviewGrid .review:hover{outline:2px dashed #00d978!important;outline-offset:3px}";doc.head.append(style);
+ const style=doc.createElement("style");style.textContent="body *{cursor:crosshair!important}body [id],body [data-i18n],body img,#reviewGrid .review{outline:1px dashed transparent;outline-offset:3px}body [id]:hover,body [data-i18n]:hover,body img:hover,#reviewGrid .review:hover{outline:2px dashed #00d978!important;outline-offset:3px}";doc.head.append(style);
+ doc.querySelectorAll("img").forEach((img,i)=>{if(!img.dataset.adminImage)img.dataset.adminImage=img.id||("image-"+i)});
  doc.addEventListener("click",e=>{const item=resolveSelection(e.target,doc);if(!item)return;e.preventDefault();e.stopPropagation();openEditor(item);if(item.type==="image"){requestAnimationFrame(()=>{$("imageControls").scrollIntoView({behavior:"smooth",block:"nearest"});$("imageUpload").focus({preventScroll:true});});}},true);
 }
 async function loadContent(){
