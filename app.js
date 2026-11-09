@@ -30,7 +30,7 @@ function applyContent(){
  if(content.heroImage)$("heroImage")?.style.setProperty("backgroundImage",`linear-gradient(90deg,rgba(3,10,6,.90),rgba(3,10,6,.18)),url("${content.heroImage}")`);
  if(content.logoUrl){$("brandMark").innerHTML=`<img src="${escapeAttr(content.logoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;}
  $("whatsappLink").href="https://wa.me/"+(content.contact?.whatsapp||"212682327111");const phoneLink=$("phoneLink");if(phoneLink){const phone=content.contact?.phone||"+212682327111";phoneLink.href="tel:"+phone.replace(/[^+0-9]/g,"");phoneLink.textContent=phone;}
- $("addressText").textContent=content.contact?.address||t.address;$("hoursText").textContent=content.contact?.hours||t.hours;
+ $("addressText").textContent=t.address||content.contact?.address||"";$("hoursText").textContent=t.hours||content.contact?.hours||"";
  $("reviewGrid").innerHTML=(content.reviews||[]).map(r=>`<article class="review"><div class="stars">${"★".repeat(Math.max(0,Math.min(5,Number(r.rating)||5)))}</div><p>“${escapeHtml(r.text||"")}”</p><small>${escapeHtml(r.name||"")}</small></article>`).join("");
  $("languageSelect").value=lang;
 }
