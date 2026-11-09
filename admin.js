@@ -1,6 +1,7 @@
 const cfg=window.SUPABASE_CONFIG;
 const client=window.supabase?.createClient(cfg.url,cfg.anonKey);
 const $=id=>document.getElementById(id);
+const OPENING_HOURS = { fr:"Lundi–samedi : 09:00–23:30\nDimanche : fermé", ar:"من الاثنين إلى السبت: 09:00 صباحاً – 11:30 ليلاً\nالأحد: مغلق", en:"Monday–Saturday: 9:00 AM–11:30 PM\nSunday: Closed" };
 const GYM_MAPS_URL = "https://www.google.com/maps/place/Salle+de+Sport+El-ichaa/@30.4362711,-9.5566428,81m/data=!3m1!1e3!4m6!3m5!1s0xdb3b710adb9e99b:0xe95bc6c0277a1800!8m2!3d30.4362533!4d-9.5568238!16s%2Fg%2F11s7y2k6th?entry=ttu&g_ep=EgoyMDI2MDkyNy4xIKXMDSoASAFQAw%3D%3D";
 const DEFAULT_CONTENT={
  siteName:"Salle de Sport El-ichaa",logoUrl:"",heroImage:"",
@@ -84,7 +85,7 @@ function attachPreview(){
 }
 async function loadContent(){
  const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;
- original=merge(DEFAULT_CONTENT,data?.content||{});original.contact=original.contact||{};original.contact.maps=GYM_MAPS_URL;draft=clone(original);setupColorEditor();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
+ original=merge(DEFAULT_CONTENT,data?.content||{});original.contact=original.contact||{};original.contact.maps=GYM_MAPS_URL;for(const code of ["fr","ar","en"]){original.translations[code]=original.translations[code]||{};original.translations[code].hours=OPENING_HOURS[code];}draft=clone(original);setupColorEditor();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
 }
 function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("logoutBtn").hidden=false;notify("loginMessage","");attachPreview();}
 async function afterLogin(user){showDashboard(user);try{await loadContent()}catch(e){notify("saveState","Erreur de chargement : "+e.message,true)}}
