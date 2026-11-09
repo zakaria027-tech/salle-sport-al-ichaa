@@ -16,6 +16,12 @@ const DEFAULT_CONTENT={
  uiTranslations:{},colors:{dark:{bg:"#07100b",surface:"#0d1811",surface2:"#132219",text:"#f4f8f4",muted:"#a3b0a6",green:"#00e676",green2:"#0b8c4a",header:"#050c08",line:"#26362b"},light:{bg:"#f4f7f3",surface:"#ffffff",surface2:"#e9f1ea",text:"#102017",muted:"#5f6e63",green:"#078b48",green2:"#08743d",header:"#f8fbf8",line:"#dce5dd"}}
 };
 let original=null,draft=null,selected=null,previewReady=false;
+const IMAGE_FIELDS=[
+ {path:"heroImage",title:"Image de couverture",label:"Image principale",fallback:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=80"},
+ {path:"images.fitness",title:"Image — Fitness",label:"Fitness & musculation",fallback:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=80"},
+ {path:"images.martial",title:"Image — Arts martiaux",label:"Arts martiaux",fallback:"https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&w=900&q=80"},
+ {path:"logoUrl",title:"Logo du club",label:"Logo du club",fallback:""}
+];
 const ID_FIELDS={
  brandName:{path:"siteName",title:"Nom du club"},heroTitle:{path:"translations",key:"heroTitle",title:"Titre principal"},
  heroText:{path:"translations",key:"heroText",title:"Description principale"},aboutTitle:{path:"translations",key:"aboutTitle",title:"Titre — À propos"},
@@ -52,6 +58,26 @@ function refreshPreview(path,value){
  else if(path==="contact.hours"&&byId("hoursText"))byId("hoursText").textContent=value;
  else if(path.startsWith("reviews.")){const i=Number(path.split(".")[1]),field=path.split(".")[2],card=doc.querySelectorAll("#reviewGrid .review")[i];if(card){if(field==="name")card.querySelector("small").textContent=value;if(field==="text")card.querySelector("p").textContent="“"+value+"”";if(field==="rating")card.querySelector(".stars").textContent="★".repeat(Math.max(0,Math.min(5,Number(value)||0)))}}
 }
+function renderImageLibrary(){
+ const list=$("imageLibraryList");if(!list||!draft)return;list.replaceChildren();
+ for(const field of IMAGE_FIELDS){
+  const current=getPath(draft,field.path)||field.fallback;
+  const button=document.createElement("button");button.type="button";button.className="image-library-item";
+  const thumb=current?document.createElement("img"):document.createElement("span");
+  if(current){thumb.src=current;thumb.alt="";thumb.loading="lazy";}else{thumb.className="image-library-placeholder";thumb.textContent="EI";}
+  const copy=document.createElement("span");copy.className="image-library-copy";
+  const title=document.createElement("strong");title.textContent=field.label;
+  const status=document.createElement("small");status.textContent=getPath(draft,field.path)?"Image personnalisée":"Image par défaut";
+  copy.append(title,status);
+  const action=document.createElement("span");action.className="image-library-action";action.textContent="CHANGER ↗";
+  button.append(thumb,copy,action);
+  button.addEventListener("click",()=>{
+   openEditor({path:field.path,title:field.title,type:"image",help:"Choisissez une nouvelle image depuis votre appareil. Elle sera prévisualisée avant publication."});
+   $("imageUpload").click();
+  });
+  list.append(button);
+ }
+}
 function textColorTarget(doc,key){
  if(!doc||!key)return null;const parts=key.split(":");
  if(parts[0]==="id")return doc.getElementById(parts[1]);
@@ -85,7 +111,7 @@ function attachPreview(){
 }
 async function loadContent(){
  const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;
- original=merge(DEFAULT_CONTENT,data?.content||{});original.contact=original.contact||{};original.contact.maps=GYM_MAPS_URL;for(const code of ["fr","ar","en"]){original.translations[code]=original.translations[code]||{};original.translations[code].hours=OPENING_HOURS[code];}draft=clone(original);setupColorEditor();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
+ original=merge(DEFAULT_CONTENT,data?.content||{});original.contact=original.contact||{};original.contact.maps=GYM_MAPS_URL;for(const code of ["fr","ar","en"]){original.translations[code]=original.translations[code]||{};original.translations[code].hours=OPENING_HOURS[code];}draft=clone(original);setupColorEditor();renderImageLibrary();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
 }
 function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("logoutBtn").hidden=false;notify("loginMessage","");attachPreview();}
 async function afterLogin(user){showDashboard(user);try{await loadContent()}catch(e){notify("saveState","Erreur de chargement : "+e.message,true)}}
@@ -96,7 +122,7 @@ const savedTheme=localStorage.getItem("elichaa-admin-theme")||"dark";document.do
 $("sitePreview").addEventListener("load",()=>{previewReady=false;attachPreview()});
 $("editLanguage").addEventListener("change",()=>{const doc=$("sitePreview").contentDocument,sel=doc?.getElementById("languageSelect");if(sel){sel.value=language();sel.dispatchEvent(new Event("change",{bubbles:true}))}openEditorEmpty()});
 function openEditorEmpty(){$("editorPanel").hidden=true;$("selectionEmpty").hidden=false;selected=null}
-$("applyEdit").addEventListener("click",()=>{if(!selected)return;if(selected.multilingual){for(const [code,id] of [["fr","valueFr"],["ar","valueAr"],["en","valueEn"]])setPath(draft,selected.root+"."+code+"."+selected.key,$(id).value);const activePath=selected.root+"."+language()+"."+selected.key;refreshPreview(activePath,getPath(draft,activePath));}else{let value=$("editValue").value;if(selected.type==="number"){value=Number(value);if(!Number.isFinite(value)||value<0||value>5){notify("editMessage","La note doit être comprise entre 0 et 5.",true);return}}setPath(draft,selected.path,value);refreshPreview(selected.path,value);if(selected.type==="image"){$("imagePreview").replaceChildren();if(value){const img=document.createElement("img");img.src=value;$("imagePreview").append(img)}}}markDraft();notify("editMessage",selected.multilingual?"Les trois traductions ont été appliquées à l’aperçu.":"Modification appliquée à l’aperçu.")});
+$("applyEdit").addEventListener("click",()=>{if(!selected)return;if(selected.multilingual){for(const [code,id] of [["fr","valueFr"],["ar","valueAr"],["en","valueEn"]])setPath(draft,selected.root+"."+code+"."+selected.key,$(id).value);const activePath=selected.root+"."+language()+"."+selected.key;refreshPreview(activePath,getPath(draft,activePath));}else{let value=$("editValue").value;if(selected.type==="number"){value=Number(value);if(!Number.isFinite(value)||value<0||value>5){notify("editMessage","La note doit être comprise entre 0 et 5.",true);return}}setPath(draft,selected.path,value);refreshPreview(selected.path,value);if(selected.type==="image"){$("imagePreview").replaceChildren();if(value){const img=document.createElement("img");img.src=value;$("imagePreview").append(img)}renderImageLibrary();}}markDraft();notify("editMessage",selected.multilingual?"Les trois traductions ont été appliquées à l’aperçu.":"Modification appliquée à l’aperçu.")});
 $("applyTextColors").addEventListener("click",()=>{
  if(!selected?.colorKey||selected.type==="image")return;
  draft.textColors=draft.textColors||{dark:{},light:{}};draft.textColors.dark=draft.textColors.dark||{};draft.textColors.light=draft.textColors.light||{};
@@ -110,7 +136,7 @@ $("imageUpload").addEventListener("change",async e=>{const file=e.target.files?.
  const safeName=file.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-");const path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+safeName;notify("editMessage","Téléversement de l’image…");$("imageUpload").disabled=true;
  const {error}=await client.storage.from("site-media").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});$("imageUpload").disabled=false;
  if(error){notify("editMessage","Échec du téléversement : "+error.message,true);e.target.value="";return}
- const {data}=client.storage.from("site-media").getPublicUrl(path);setPath(draft,selected.path,data.publicUrl);refreshPreview(selected.path,data.publicUrl);$("imagePreview").replaceChildren();const img=document.createElement("img");img.src=data.publicUrl;$("imagePreview").append(img);$("editValue").value=data.publicUrl;markDraft();notify("editMessage","Image ajoutée à l’aperçu. Cliquez sur Publier pour la mettre en ligne.");e.target.value="";
+ const {data}=client.storage.from("site-media").getPublicUrl(path);setPath(draft,selected.path,data.publicUrl);refreshPreview(selected.path,data.publicUrl);$("imagePreview").replaceChildren();const img=document.createElement("img");img.src=data.publicUrl;$("imagePreview").append(img);$("editValue").value=data.publicUrl;renderImageLibrary();markDraft();notify("editMessage","Image ajoutée à l’aperçu. Cliquez sur Publier pour la mettre en ligne.");e.target.value="";
 });
 $("publishBtn").addEventListener("click",async()=>{if(!draft)return;$("publishBtn").disabled=true;$("publishBtn").textContent="Publication…";const {error}=await client.from("site_content").upsert({id:"main",content:draft,updated_at:new Date().toISOString()},{onConflict:"id"});$("publishBtn").disabled=false;$("publishBtn").textContent="Publier les modifications ↗";if(error){notify("saveState","Échec de publication : "+error.message,true);return}original=clone(draft);$("saveState").textContent="Publié avec succès";$("saveState").style.color="var(--green)";});
 $("discardBtn").addEventListener("click",async()=>{if(!confirm("Annuler toutes les modifications non publiées ?"))return;try{await loadContent();$("sitePreview").contentWindow.location.reload();openEditorEmpty()}catch(e){notify("saveState","Impossible de recharger : "+e.message,true)}});
