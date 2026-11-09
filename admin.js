@@ -55,7 +55,7 @@ function openEditor(item){
  $("selectedTitle").textContent=item.title;$("selectedHelp").textContent=item.help||"عدّل المحتوى ثم اضغط «تطبيق» لمعاينة النتيجة.";
  const multi=!!item.multilingual;
  $("multilingualControls").hidden=!multi;$("valueLabel").hidden=item.type==="image"||multi;$("editValue").hidden=item.type==="image"||multi;$("imageControls").hidden=item.type!=="image";
- if(multi){$("valueFr").value=getPath(draft,item.root+".fr."+item.key)??"";$("valueAr").value=getPath(draft,item.root+".ar."+item.key)??"";$("valueEn").value=getPath(draft,item.root+".en."+item.key)??"";}
+ if(multi){const defaults= $("sitePreview").contentWindow?.SITE_I18N||{};for(const [code,id] of [["fr","valueFr"],["ar","valueAr"],["en","valueEn"]]){const saved=getPath(draft,item.root+"."+code+"."+item.key);$(id).value=saved??(item.root==="uiTranslations"?(defaults[code]?.[item.key]??""):"");}}
  else if(item.type==="image"){const url=getPath(draft,item.path)||"";$("imagePreview").replaceChildren();if(url){const img=document.createElement("img");img.src=url;$("imagePreview").append(img)}$("editValue").value=url;}
  else $("editValue").value=item.value??"";
  $("editMessage").textContent="";
