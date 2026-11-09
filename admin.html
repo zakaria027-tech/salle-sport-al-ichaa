@@ -1,1 +1,59 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Administration | El-ichaa</title><link rel="stylesheet" href="admin.css"></head><body><main class="admin-shell"><header class="admin-head"><a href="index.html" class="admin-brand"><span>EI</span><b>EL-ICHAA <small>ADMINISTRATION</small></b></a><span class="secure">● Connexion sécurisée Supabase</span></header><section id="loginPanel" class="panel login-panel"><div class="tag">ESPACE PRIVÉ</div><h1>Administration</h1><p>Connectez-vous avec le compte administrateur du club.</p><form id="loginForm"><label>Adresse e-mail<input type="email" id="email" required autocomplete="username"></label><label>Mot de passe<input type="password" id="password" required autocomplete="current-password"></label><button class="primary" type="submit">Se connecter <span>↗</span></button><p id="loginMessage" class="message"></p></form></section><section id="dashboard" hidden><div class="welcome"><div><div class="tag">TABLEAU DE BORD</div><h1>Gestion du site</h1><p>Les modifications publiées sont visibles sur le site public.</p></div><button id="logoutBtn" class="ghost">Déconnexion ↗</button></div><div class="status" id="statusBox">Connectez-vous pour charger le contenu.</div><div class="editor-layout"><aside class="panel side-help"><b>Éditeur de contenu</b><p>Vous pouvez modifier tous les textes, images, liens, avis, tarifs, horaires et autres sections depuis le contenu JSON ci-contre.</p><p>Les champs non utilisés par le site peuvent être conservés pour de futures sections.</p><button id="resetBtn" class="ghost danger">Réinitialiser le brouillon</button></aside><section class="panel editor"><div class="editor-title"><div><h2>Contenu complet du site</h2><p>Format JSON · Les changements sont publiés après validation.</p></div><span class="json-badge">JSON</span></div><textarea id="contentEditor" spellcheck="false" aria-label="Contenu JSON du site"></textarea><div class="editor-actions"><button id="formatBtn" class="ghost">Formater JSON</button><button id="saveBtn" class="primary">Enregistrer et publier ↗</button></div><p id="saveMessage" class="message"></p></section></div><div class="panel instructions"><h3>Gestion des images</h3><p>Pour l'instant, utilisez des URL d'images publiques dans <code>images</code> ou <code>logoUrl</code> du JSON. Le stockage Supabase et ses règles sont préparés dans le script SQL fourni.</p><h3>Créer ou autoriser un administrateur</h3><p>Créez d'abord l'utilisateur dans Supabase Authentication, puis exécutez la requête SQL d'autorisation indiquée dans <code>supabase-setup.sql</code>.</p></div></section><footer>El-ichaa · Panneau d'administration indépendant</footer></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="admin.js"></script></body></html>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Administration | El-ichaa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <a href="index.html" class="brand"><span class="brand-mark">EI</span><span><b>EL-ICHAA</b><small>STUDIO · ADMINISTRATION</small></span></a>
+    <div class="top-actions"><span class="secure"><i></i> SUPABASE SECURE</span><button id="themeToggle" class="icon-button" type="button" aria-label="Changer le thème">☼</button><button id="logoutBtn" class="button button-quiet" hidden>Déconnexion ↗</button></div>
+  </header>
+
+  <main>
+    <section id="loginPanel" class="login-wrap">
+      <div class="login-card">
+        <div class="eyebrow">ESPACE PRIVÉ</div><h1>Bienvenue.</h1><p>Connectez-vous pour modifier le site du club.</p>
+        <form id="loginForm">
+          <label>Adresse e-mail<input type="email" id="email" required autocomplete="username" placeholder="admin@exemple.com"></label>
+          <label>Mot de passe<input type="password" id="password" required autocomplete="current-password" placeholder="••••••••••"></label>
+          <button class="button button-primary full" type="submit">Ouvrir la gestion <span>↗</span></button>
+          <p id="loginMessage" class="message" role="status"></p>
+        </form>
+      </div>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="dashboard-heading">
+        <div><div class="eyebrow">TABLEAU DE BORD</div><h1>Éditeur visuel</h1><p>Choisissez un élément directement dans l’aperçu pour le modifier.</p></div>
+        <div class="publish-area"><span id="saveState" class="save-state">Toutes les modifications sont enregistrées</span><button id="publishBtn" class="button button-primary">Publier les modifications ↗</button></div>
+      </div>
+      <div class="workspace">
+        <aside class="control-panel">
+          <div class="panel-heading"><div><span class="eyebrow">ÉDITION</span><h2>Modifier le site</h2></div><span class="live-dot">LIVE</span></div>
+          <div class="control-row"><label for="editLanguage">Langue du contenu</label><select id="editLanguage"><option value="fr">Français</option><option value="ar">العربية</option><option value="en">English</option></select></div>
+          <div id="selectionEmpty" class="selection-empty"><div class="cursor-symbol">↖</div><b>Aucun élément sélectionné</b><p>Cliquez sur un texte ou une image dans l’aperçu à droite pour commencer.</p></div>
+          <section id="editorPanel" class="editor-panel" hidden>
+            <div class="selected-label">ÉLÉMENT SÉLECTIONNÉ</div><h3 id="selectedTitle">Modifier le texte</h3><p id="selectedHelp" class="help-text"></p>
+            <label id="valueLabel" for="editValue">Contenu</label><textarea id="editValue" rows="4"></textarea>
+            <div id="imageControls" hidden><div id="imagePreview" class="image-preview"></div><label class="upload-button" for="imageUpload">＋ Choisir une image depuis l’appareil</label><input id="imageUpload" type="file" accept="image/*" hidden><p class="help-text">Formats image · 5 Mo maximum. L’image sera envoyée vers le stockage sécurisé du site.</p></div>
+            <div class="editor-buttons"><button id="cancelEdit" class="button button-quiet" type="button">Annuler</button><button id="applyEdit" class="button button-primary" type="button">Appliquer</button></div>
+            <p id="editMessage" class="message" role="status"></p>
+          </section>
+          <div class="panel-footer"><button id="discardBtn" class="text-button" type="button">Annuler toutes les modifications</button><p>Les changements restent en brouillon jusqu’à la publication.</p></div>
+        </aside>
+        <section class="preview-panel">
+          <div class="preview-toolbar"><div><span class="preview-indicator"></span><b>Aperçu du site</b><span class="preview-subtitle">Cliquez pour modifier</span></div><a href="index.html" target="_blank" rel="noopener">Ouvrir le site ↗</a></div>
+          <div class="preview-frame-wrap"><iframe id="sitePreview" title="Aperçu interactif du site" src="index.html?adminPreview=1"></iframe></div>
+        </section>
+      </div>
+      <div class="bottom-note"><span>El-ichaa Studio</span><span>Les modifications publiées sont visibles sur le site public.</span></div>
+    </section>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="admin.js"></script>
+</body></html>
