@@ -228,3 +228,246 @@ html[data-theme="light"] .hero h1 .hero-title-accent{
  color:inherit!important;
  filter:none!important;
 }
+
+
+/* Premium dark experience */
+html[data-theme="dark"]{
+ color-scheme:dark;
+ --bg:#060d09;
+ --surface:#0c1710;
+ --surface2:#101f16;
+ --text:#f2f8f3;
+ --muted:#9eafa3;
+ --line:rgba(163,220,180,.13);
+ --green:#35ed91;
+ --green2:#0d9b59;
+ --header:rgba(5,13,8,.82);
+ --shadow:0 22px 65px rgba(0,0,0,.34);
+}
+html[data-theme="dark"] body{
+ background:
+  radial-gradient(ellipse at 12% 8%,rgba(20,112,65,.10),transparent 34rem),
+  radial-gradient(ellipse at 88% 46%,rgba(0,230,118,.045),transparent 32rem),
+  var(--bg);
+}
+html[data-theme="dark"] .site-header{
+ border-bottom-color:rgba(117,205,145,.14);
+ box-shadow:0 8px 35px rgba(0,0,0,.18);
+}
+html[data-theme="dark"] .brand-mark{
+ color:#031109;
+ background:linear-gradient(145deg,#72f5ad,#16c978);
+ box-shadow:0 0 0 5px rgba(53,237,145,.08),0 8px 25px rgba(20,210,112,.20);
+}
+html[data-theme="dark"] .main-nav a{
+ transition:color .25s ease,text-shadow .25s ease;
+}
+html[data-theme="dark"] .main-nav a:hover{
+ color:var(--green);
+ text-shadow:0 0 18px rgba(53,237,145,.38);
+}
+html[data-theme="dark"] .icon-btn,
+html[data-theme="dark"] .menu-toggle,
+html[data-theme="dark"] .header-actions select{
+ border-color:rgba(151,220,171,.18);
+ background:rgba(14,29,19,.88);
+ box-shadow:0 5px 18px rgba(0,0,0,.18);
+ transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+html[data-theme="dark"] .icon-btn:hover,
+html[data-theme="dark"] .menu-toggle:hover{
+ transform:translateY(-2px) rotate(8deg);
+ border-color:rgba(53,237,145,.55);
+ box-shadow:0 0 22px rgba(53,237,145,.12);
+}
+html[data-theme="dark"] .btn{
+ position:relative;
+ overflow:hidden;
+ border-radius:7px;
+ background:linear-gradient(120deg,#45f19b,#16bd70);
+ box-shadow:0 8px 25px rgba(20,210,112,.16);
+ transition:transform .25s ease,box-shadow .25s ease,filter .25s ease;
+}
+html[data-theme="dark"] .btn::after{
+ content:"";
+ position:absolute;
+ inset:-40% auto -40% -45%;
+ width:32%;
+ transform:skewX(-22deg);
+ background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);
+ transition:left .65s ease;
+}
+html[data-theme="dark"] .btn:hover{
+ transform:translateY(-4px);
+ box-shadow:0 13px 32px rgba(20,210,112,.27);
+ filter:saturate(1.08);
+}
+html[data-theme="dark"] .btn:hover::after{left:125%}
+html[data-theme="dark"] .hero-bg{
+ background-image:
+  linear-gradient(90deg,rgba(2,9,5,.97) 0%,rgba(3,13,7,.82) 48%,rgba(3,13,7,.30) 100%),
+  url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=90");
+ transform:scale(1.015);
+ animation:darkHeroDrift 24s ease-in-out infinite alternate;
+}
+html[data-theme="dark"] .hero-content{
+ animation:darkRise .9s cubic-bezier(.2,.7,.2,1) both;
+}
+html[data-theme="dark"] .hero h1 .hero-title-accent{
+ color:#55f2a0;
+ text-shadow:0 0 28px rgba(53,237,145,.18);
+}
+html[data-theme="dark"] .pulse{
+ box-shadow:0 0 0 6px rgba(53,237,145,.10),0 0 20px rgba(53,237,145,.45);
+ animation:darkPulse 2.4s ease-in-out infinite;
+}
+html[data-theme="dark"] .section-kicker,
+html[data-theme="dark"] .eyebrow{ text-shadow:0 0 18px rgba(53,237,145,.20) }
+html[data-theme="dark"] .training{
+ background:linear-gradient(180deg,#0b1710 0%,#0a140e 100%);
+ border-top:1px solid rgba(120,210,150,.07);
+ border-bottom:1px solid rgba(120,210,150,.07);
+}
+html[data-theme="dark"] .training-card{
+ border:1px solid rgba(162,224,180,.12);
+ border-radius:16px;
+ box-shadow:0 18px 48px rgba(0,0,0,.28);
+ transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease;
+}
+html[data-theme="dark"] .training-card:hover{
+ transform:translateY(-7px);
+ border-color:rgba(53,237,145,.42);
+ box-shadow:0 25px 55px rgba(0,0,0,.38),0 0 28px rgba(53,237,145,.07);
+}
+html[data-theme="dark"] .training-card img{
+ filter:saturate(.88) brightness(.88);
+ transition:transform .8s cubic-bezier(.2,.7,.2,1),filter .5s ease;
+}
+html[data-theme="dark"] .training-card:hover img{
+ transform:scale(1.055);
+ filter:saturate(1.04) brightness(.98);
+}
+html[data-theme="dark"] .card-shade{
+ background:linear-gradient(0deg,rgba(2,9,5,.94),rgba(2,9,5,.04) 78%);
+}
+html[data-theme="dark"] .pricing{
+ background:linear-gradient(180deg,#060d09 0%,#09140d 100%);
+}
+html[data-theme="dark"] .sport-price-card{
+ padding:17px;
+ gap:15px;
+ border:1px solid rgba(151,220,171,.13);
+ border-radius:15px;
+ background:linear-gradient(145deg,rgba(17,34,23,.98),rgba(10,22,14,.98));
+ box-shadow:0 12px 32px rgba(0,0,0,.20);
+ transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease;
+}
+html[data-theme="dark"] .sport-price-card:hover{
+ transform:translateY(-6px);
+ border-color:rgba(53,237,145,.42);
+ box-shadow:0 20px 42px rgba(0,0,0,.32),0 0 24px rgba(53,237,145,.06);
+}
+html[data-theme="dark"] .sport-price-media{
+ height:230px;
+ border-radius:10px;
+ background:#0a140e;
+}
+html[data-theme="dark"] .sport-price-media img{transition:transform .55s ease,filter .4s ease}
+html[data-theme="dark"] .sport-price-card:hover .sport-price-media img{
+ transform:scale(1.045);
+ filter:brightness(1.08);
+}
+html[data-theme="dark"] .sport-price-card h3{color:#edf8f0}
+html[data-theme="dark"] .sport-price-value{
+ color:#52efa0;
+ text-shadow:0 0 18px rgba(53,237,145,.13);
+}
+html[data-theme="dark"] .review{
+ border:1px solid rgba(151,220,171,.13);
+ border-radius:14px;
+ background:linear-gradient(145deg,#101e15,#0b160f);
+ box-shadow:0 12px 30px rgba(0,0,0,.18);
+ transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease;
+}
+html[data-theme="dark"] .review:hover{
+ transform:translateY(-5px);
+ border-color:rgba(53,237,145,.34);
+ box-shadow:0 18px 38px rgba(0,0,0,.28),0 0 22px rgba(53,237,145,.05);
+}
+html[data-theme="dark"] .review p{color:#e5eee7}
+html[data-theme="dark"] .google-rating strong{color:#f2f8f3}
+html[data-theme="dark"] .quote-band{
+ background:linear-gradient(112deg,#087a46 0%,#0da65d 52%,#087343 100%);
+ box-shadow:inset 0 1px rgba(255,255,255,.12),inset 0 -1px rgba(0,0,0,.12);
+}
+html[data-theme="dark"] .contact-panel{
+ position:relative;
+ overflow:hidden;
+ background:linear-gradient(135deg,rgba(17,37,24,.98),rgba(9,22,14,.98));
+ border:1px solid rgba(151,220,171,.16);
+ border-radius:20px;
+ box-shadow:0 22px 58px rgba(0,0,0,.28);
+}
+html[data-theme="dark"] .contact-panel::before{
+ content:"";
+ position:absolute;
+ width:320px;height:320px;
+ right:-150px;top:-170px;
+ border-radius:50%;
+ background:radial-gradient(circle,rgba(53,237,145,.12),transparent 68%);
+ pointer-events:none;
+}
+html[data-theme="dark"] .contact-details{
+ padding:24px;
+ background:rgba(4,14,8,.38);
+ border:1px solid rgba(151,220,171,.12);
+ border-radius:14px;
+}
+html[data-theme="dark"] footer{
+ background:rgba(5,12,8,.72);
+ border-top-color:rgba(151,220,171,.13);
+}
+html[data-theme="dark"] footer .brand-mark{
+ box-shadow:0 0 0 4px rgba(53,237,145,.07),0 5px 18px rgba(20,210,112,.14);
+}
+html[data-theme="dark"] .social-link{
+ background:rgba(15,30,20,.75);
+ border-color:rgba(151,220,171,.16);
+ transition:transform .25s ease,color .25s ease,border-color .25s ease,box-shadow .25s ease;
+}
+html[data-theme="dark"] .social-link:hover{
+ transform:translateY(-4px);
+ color:var(--green);
+ border-color:rgba(53,237,145,.6);
+ box-shadow:0 7px 20px rgba(53,237,145,.12);
+}
+html[data-theme="dark"] :focus-visible{
+ outline:2px solid rgba(53,237,145,.72);
+ outline-offset:4px;
+}
+@keyframes darkRise{
+ from{opacity:0;transform:translateY(22px)}
+ to{opacity:1;transform:translateY(0)}
+}
+@keyframes darkPulse{
+ 0%,100%{box-shadow:0 0 0 5px rgba(53,237,145,.09),0 0 12px rgba(53,237,145,.28)}
+ 50%{box-shadow:0 0 0 9px rgba(53,237,145,.035),0 0 23px rgba(53,237,145,.52)}
+}
+@keyframes darkHeroDrift{
+ from{background-position:center center;filter:saturate(.92)}
+ to{background-position:53% center;filter:saturate(1.04)}
+}
+@media(max-width:850px){
+ html[data-theme="dark"] .main-nav{
+  background:rgba(8,19,12,.98);
+  box-shadow:0 18px 38px rgba(0,0,0,.32);
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-theme="dark"] *,html[data-theme="dark"] *::before,html[data-theme="dark"] *::after{
+  animation-duration:.01ms!important;
+  animation-iteration-count:1!important;
+  scroll-behavior:auto!important;
+  transition-duration:.01ms!important;
+ }
+}
