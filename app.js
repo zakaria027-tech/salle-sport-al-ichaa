@@ -24,7 +24,7 @@ const I18N={
 window.SITE_I18N=I18N;
 let content=structuredClone(DEFAULT_CONTENT), lang=localStorage.getItem("elichaa-lang")||"fr";
 const $=id=>document.getElementById(id);
-function setText(id,value){if($(id)&&value!==undefined)$(id).textContent=value}
+function cleanText(value){return String(value??"").replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g,"")}\nfunction setText(id,value){if($(id)&&value!==undefined)$(id).textContent=cleanText(value)}\nfunction setTextWithBreaks(id,value){const el=$(id);if(!el)return;el.replaceChildren();cleanText(value).split("\\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
 function applyThemeColors(){
  const mode=document.documentElement.dataset.theme==="light"?"light":"dark",p=content.colors?.[mode];
  if(p){const vars={bg:"--bg",surface:"--surface",surface2:"--surface2",text:"--text",muted:"--muted",green:"--green",green2:"--green2",header:"--header",line:"--line"};for(const [k,v] of Object.entries(vars))if(p[k])document.documentElement.style.setProperty(v,p[k]);}
@@ -42,11 +42,11 @@ function renderSports(){
  const sports=Array.isArray(content.sports)?content.sports:[];
  sports.forEach(sport=>{
   const card=document.createElement("article");card.className="sport-price-card";
-  const title=document.createElement("h3");title.textContent=sport.name?.[lang]||sport.name?.fr||sport.name?.en||"Sport";
+  const title=document.createElement("h3");title.textContent=cleanText(sport.name?.[lang]||sport.name?.fr||sport.name?.en||"Sport");
   const media=document.createElement("div");media.className="sport-price-media";
   if(sport.image){const img=document.createElement("img");img.src=sport.image;img.alt=title.textContent;img.loading="lazy";media.append(img);}
   else{const placeholder=document.createElement("span");placeholder.className="sport-image-placeholder";placeholder.textContent="EL-ICHAA";media.append(placeholder);}
-  const price=document.createElement("p");price.className="sport-price-value";price.textContent=String(sport.price||"").trim()||pending;
+  const price=document.createElement("p");price.className="sport-price-value";price.textContent=cleanText(String(sport.price||"").trim())||pending;
   card.append(title,media,price);grid.append(card);
  });
  grid.parentElement?.classList.toggle("is-empty",sports.length===0);
@@ -54,7 +54,7 @@ function renderSports(){
 function applyContent(){
  const t=content.translations?.[lang]||content.translations.fr;
  document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";document.body.classList.toggle("rtl",lang==="ar");
- document.querySelectorAll("[data-i18n]").forEach(el=>{const custom=content.uiTranslations?.[lang]?.[el.dataset.i18n];const v=custom!==undefined?custom:I18N[lang]?.[el.dataset.i18n];if(v!==undefined){if(custom!==undefined)el.textContent=el.dataset.i18n==="pricingTitle"?String(v).replace(/<[^>]*>/g,""):v;else el.innerHTML=v}});
+ document.querySelectorAll("[data-i18n]").forEach(el=>{const custom=content.uiTranslations?.[lang]?.[el.dataset.i18n];const v=custom!==undefined?custom:I18N[lang]?.[el.dataset.i18n];if(v!==undefined){el.textContent=cleanText(v)}});
  setText("brandName",content.siteName);setText("footerName",content.siteName);setText("copyrightName",content.siteName);document.title=content.siteName+" | Agadir";
  for(const [id,key] of [["heroTitle","heroTitle"],["heroText","heroText"],["aboutTitle","aboutTitle"],["aboutText","aboutText"],["fitnessTitle","fitnessTitle"],["fitnessText","fitnessText"],["martialTitle","martialTitle"],["martialText","martialText"],["addressText","address"],["hoursText","hours"]])setText(id,t[key]);
  $("heroTitle").innerHTML=(t.heroTitle||"").replace(/\\n/g,"<br>");
