@@ -11,6 +11,10 @@ const DEFAULT_CONTENT={
   en:{heroTitle:"Push your limits.\nUnlock your strength.",heroText:"A place dedicated to your progress.",aboutTitle:"Today's discipline.\nTomorrow's strength.",aboutText:"Welcome to Salle de Sport El-ichaa.",fitnessTitle:"Fitness & Strength",fitnessText:"Build strength, endurance and overall fitness.",martialTitle:"Martial Arts",martialText:"Develop technique and discipline.",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"Please confirm opening hours with the club"}
  },
  images:{fitness:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85",martial:"https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&w=1000&q=85"},
+ sports:[
+  {id:"fitness",name:{fr:"Fitness & Musculation",ar:"اللياقة البدنية وكمال الأجسام",en:"Fitness & Strength"},price:"",image:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85"},
+  {id:"martial",name:{fr:"Arts martiaux",ar:"الفنون القتالية",en:"Martial Arts"},price:"",image:"https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&w=1000&q=85"}
+ ],
  reviews:[{name:"Rayane Rizqy",text:"The best gym ever, staff are friendly.",rating:5},{name:"HaMzA",text:"Great gym and awesome service.",rating:5},{name:"Mo. Eloukhami",text:"Excellent service.",rating:5}],
  contact:{phone:"+212682327111",whatsapp:"212682327111",address:"LOT N: 3431, Agadir 80000, Morocco",hours:"À confirmer auprès du club",maps:GYM_MAPS_URL},
  uiTranslations:{},colors:{dark:{bg:"#07100b",surface:"#0d1811",surface2:"#132219",text:"#f4f8f4",muted:"#a3b0a6",green:"#00e676",green2:"#0b8c4a",header:"#050c08",line:"#26362b"},light:{bg:"#f4f7f3",surface:"#ffffff",surface2:"#e9f1ea",text:"#102017",muted:"#5f6e63",green:"#078b48",green2:"#08743d",header:"#f8fbf8",line:"#dce5dd"}}
@@ -112,9 +116,56 @@ function attachPreview(){
  doc.querySelectorAll("img").forEach((img,i)=>{if(!img.dataset.adminImage)img.dataset.adminImage=img.id||("image-"+i)});
  doc.addEventListener("click",e=>{const item=resolveSelection(e.target,doc);if(!item)return;e.preventDefault();e.stopPropagation();openEditor(item);if(item.type==="image"){requestAnimationFrame(()=>{$("imageControls").scrollIntoView({behavior:"smooth",block:"nearest"});$("imageUpload").focus({preventScroll:true});});}},true);
 }
+function sportName(sport,code){return sport?.name?.[code]||sport?.name?.fr||sport?.name?.en||""}
+function renderSportsPreview(){
+ const doc=$("sitePreview").contentDocument,grid=doc?.getElementById("sportsGrid");if(!grid||!draft)return;
+ grid.replaceChildren();const code=language(),pending={fr:"Tarif à confirmer",ar:"السعر يحدد من الإدارة",en:"Price to be confirmed"};
+ (draft.sports||[]).forEach(sport=>{
+  const card=doc.createElement("article");card.className="sport-price-card";
+  const title=doc.createElement("h3");title.textContent=sportName(sport,code)||"Sport";
+  const media=doc.createElement("div");media.className="sport-price-media";
+  if(sport.image){const img=doc.createElement("img");img.src=sport.image;img.alt=title.textContent;media.append(img);}
+  else{const placeholder=doc.createElement("span");placeholder.className="sport-image-placeholder";placeholder.textContent="EL-ICHAA";media.append(placeholder);}
+  const price=doc.createElement("p");price.className="sport-price-value";price.textContent=String(sport.price||"").trim()||pending[code];
+  card.append(title,media,price);grid.append(card);
+ });
+}
+function renderSportsManager(){
+ const list=$("sportsManagerList");if(!list||!draft)return;list.replaceChildren();
+ (draft.sports||[]).forEach((sport,index)=>{
+  const card=document.createElement("article");card.className="sports-manager-card";
+  const heading=document.createElement("div");heading.className="sports-manager-heading";
+  const title=document.createElement("strong");title.textContent="رياضة "+(index+1);heading.append(title);
+  const remove=document.createElement("button");remove.type="button";remove.className="button button-quiet sports-remove-button";remove.textContent="حذف";remove.dataset.removeSport=sport.id;heading.append(remove);card.append(heading);
+  const fields=document.createElement("div");fields.className="sports-manager-fields";
+  for(const [code,label,dir] of [["fr","Français","ltr"],["ar","العربية","rtl"],["en","English","ltr"]]){
+   const wrap=document.createElement("label");wrap.className="sports-field";wrap.textContent="الاسم — "+label;
+   const input=document.createElement("input");input.type="text";input.value=sport.name?.[code]||"";input.placeholder="اسم الرياضة";input.dir=dir;input.dataset.sportId=sport.id;input.dataset.sportField="name."+code;wrap.append(input);fields.append(wrap);
+  }
+  const priceWrap=document.createElement("label");priceWrap.className="sports-field";priceWrap.textContent="السعر";
+  const priceInput=document.createElement("input");priceInput.type="text";priceInput.value=sport.price||"";priceInput.placeholder="مثال: 150 درهم / الشهر";priceInput.dataset.sportId=sport.id;priceInput.dataset.sportField="price";priceWrap.append(priceInput);fields.append(priceWrap);card.append(fields);
+  const imageRow=document.createElement("div");imageRow.className="sports-image-row";
+  const image=sport.image?document.createElement("img"):document.createElement("span");if(sport.image){image.src=sport.image;image.alt="";}else{image.className="sports-image-placeholder";image.textContent="بدون صورة";}
+  const uploadLabel=document.createElement("label");uploadLabel.className="button button-quiet sports-upload-label";uploadLabel.textContent="تغيير صورة هذه الرياضة";
+  const file=document.createElement("input");file.type="file";file.accept="image/*";file.hidden=true;file.dataset.sportUpload=sport.id;uploadLabel.append(file);
+  imageRow.append(image,uploadLabel);card.append(imageRow);list.append(card);
+  file.addEventListener("change",async e=>{
+   const chosen=e.target.files?.[0];if(!chosen)return;
+   if(!chosen.type.startsWith("image/")){notify("saveState","يرجى اختيار ملف صورة صالح.",true);return;}
+   if(chosen.size>5*1024*1024){notify("saveState","حجم الصورة يتجاوز 5 ميغابايت.",true);return;}
+   const safeName=chosen.name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]/g,"-"),path="sports/"+sport.id+"-"+Date.now()+"-"+safeName;
+   notify("saveState","جارٍ رفع صورة الرياضة…");
+   const {error}=await client.storage.from("site-media").upload(path,chosen,{cacheControl:"3600",upsert:false,contentType:chosen.type});
+   if(error){notify("saveState","فشل رفع الصورة: "+error.message,true);return;}
+   const {data}=client.storage.from("site-media").getPublicUrl(path),target=draft.sports.find(item=>item.id===sport.id);
+   if(target)target.image=data.publicUrl;
+   renderSportsManager();renderSportsPreview();markDraft();notify("saveState","تم تحديث الصورة في المعاينة. اضغط نشر لإظهارها للزوار.");
+  });
+ });
+}
 async function loadContent(){
  const {data,error}=await client.from("site_content").select("content").eq("id","main").maybeSingle();if(error)throw error;
- original=merge(DEFAULT_CONTENT,data?.content||{});original.contact=original.contact||{};original.contact.maps=GYM_MAPS_URL;for(const code of ["fr","ar","en"]){original.translations[code]=original.translations[code]||{};original.translations[code].hours=OPENING_HOURS[code];}draft=clone(original);setupColorEditor();renderImageLibrary();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
+ original=merge(DEFAULT_CONTENT,data?.content||{});original.contact=original.contact||{};original.contact.maps=GYM_MAPS_URL;for(const code of ["fr","ar","en"]){original.translations[code]=original.translations[code]||{};original.translations[code].hours=OPENING_HOURS[code];}draft=clone(original);draft.sports=Array.isArray(draft.sports)?draft.sports:clone(DEFAULT_CONTENT.sports);setupColorEditor();renderImageLibrary();renderSportsManager();renderSportsPreview();$("saveState").textContent="Toutes les modifications sont enregistrées";$("saveState").style.color="var(--muted)";
 }
 function showDashboard(user){$("loginPanel").hidden=true;$("dashboard").hidden=false;$("logoutBtn").hidden=false;notify("loginMessage","");attachPreview();}
 async function afterLogin(user){showDashboard(user);try{await loadContent()}catch(e){notify("saveState","Erreur de chargement : "+e.message,true)}}
@@ -122,8 +173,25 @@ $("loginForm").addEventListener("submit",async e=>{e.preventDefault();notify("lo
 $("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();$("dashboard").hidden=true;$("loginPanel").hidden=false;$("logoutBtn").hidden=true;$("password").value="";});
 $("themeToggle").addEventListener("click",()=>{const next=document.documentElement.dataset.theme==="light"?"dark":"light";document.documentElement.dataset.theme=next;localStorage.setItem("elichaa-admin-theme",next);$("themeToggle").textContent=next==="dark"?"☼":"☾"});
 const savedTheme=localStorage.getItem("elichaa-admin-theme")||"dark";document.documentElement.dataset.theme=savedTheme;$("themeToggle").textContent=savedTheme==="dark"?"☼":"☾";
-$("sitePreview").addEventListener("load",()=>{previewReady=false;attachPreview()});
-$("editLanguage").addEventListener("change",()=>{const doc=$("sitePreview").contentDocument,sel=doc?.getElementById("languageSelect");if(sel){sel.value=language();sel.dispatchEvent(new Event("change",{bubbles:true}))}openEditorEmpty()});
+$("sitePreview").addEventListener("load",()=>{previewReady=false;attachPreview();renderSportsPreview()});
+$("editLanguage").addEventListener("change",()=>{const doc=$("sitePreview").contentDocument,sel=doc?.getElementById("languageSelect");if(sel){sel.value=language();sel.dispatchEvent(new Event("change",{bubbles:true}))}renderSportsPreview();openEditorEmpty()});
+$("sportsManagerList").addEventListener("input",e=>{
+ const input=e.target.closest("[data-sport-id][data-sport-field]");if(!input||!draft)return;
+ const sport=draft.sports.find(item=>item.id===input.dataset.sportId);if(!sport)return;
+ const [root,code]=input.dataset.sportField.split(".");
+ if(root==="name"){sport.name=sport.name||{};sport.name[code]=input.value;}else sport[root]=input.value;
+ renderSportsPreview();markDraft();
+});
+$("sportsManagerList").addEventListener("click",e=>{
+ const button=e.target.closest("[data-remove-sport]");if(!button||!draft)return;
+ const id=button.dataset.removeSport;if(!confirm("هل تريد حذف هذه الرياضة من قائمة الأسعار؟"))return;
+ draft.sports=draft.sports.filter(item=>item.id!==id);renderSportsManager();renderSportsPreview();markDraft();
+});
+$("addSportBtn").addEventListener("click",()=>{
+ draft.sports=draft.sports||[];const id="sport-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
+ draft.sports.push({id,name:{fr:"",ar:"",en:""},price:"",image:""});
+ renderSportsManager();renderSportsPreview();markDraft();
+});
 function openEditorEmpty(){$("editorPanel").hidden=true;$("selectionEmpty").hidden=false;selected=null}
 $("applyEdit").addEventListener("click",()=>{if(!selected)return;if(selected.multilingual){for(const [code,id] of [["fr","valueFr"],["ar","valueAr"],["en","valueEn"]])setPath(draft,selected.root+"."+code+"."+selected.key,$(id).value);const activePath=selected.root+"."+language()+"."+selected.key;refreshPreview(activePath,getPath(draft,activePath));}else{let value=$("editValue").value;if(selected.type==="number"){value=Number(value);if(!Number.isFinite(value)||value<0||value>5){notify("editMessage","La note doit être comprise entre 0 et 5.",true);return}}setPath(draft,selected.path,value);refreshPreview(selected.path,value);if(selected.type==="image"){$("imagePreview").replaceChildren();if(value){const img=document.createElement("img");img.src=value;$("imagePreview").append(img)}renderImageLibrary();}}markDraft();notify("editMessage",selected.multilingual?"Les trois traductions ont été appliquées à l’aperçu.":"Modification appliquée à l’aperçu.")});
 $("applyTextColors").addEventListener("click",()=>{

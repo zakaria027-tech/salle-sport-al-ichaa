@@ -17,3 +17,14 @@
 .image-library-copy strong{font-size:11px}
 .image-library-copy small{font-size:10px;color:var(--muted)}
 .image-library-action{margin-left:auto;color:var(--green);font-size:10px;font-weight:800;white-space:nowrap}
+
+/* Independent sports and prices editor */
+.sports-manager{border-top:1px solid var(--line);padding:18px 0;margin-top:18px}.sports-manager h3{font:700 17px Manrope;margin:7px 0 8px}
+.sports-manager-list{display:grid;gap:12px;margin-top:14px}.sports-manager-card{padding:12px;background:var(--surface2);border:1px solid var(--line);border-radius:10px}
+.sports-manager-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.sports-manager-heading strong{font-size:12px}
+.sports-remove-button{padding:6px 9px;color:var(--danger)}.sports-manager-fields{display:grid;gap:8px}
+.sports-field{margin:0;font-size:10px}.sports-field input{display:block;margin-top:5px;padding:9px;font-size:12px}
+.sports-image-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.sports-image-row>img,.sports-image-placeholder{width:78px;height:62px;flex:0 0 78px;object-fit:cover;border-radius:7px;background:var(--bg)}
+.sports-image-placeholder{display:grid;place-items:center;font-size:9px;color:var(--muted);text-align:center}
+.sports-upload-label{display:inline-flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;font-size:10px;flex:1;padding:9px}.sports-add-button{width:100%;margin-top:13px}
