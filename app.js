@@ -26,7 +26,7 @@ let content=structuredClone(DEFAULT_CONTENT), lang=localStorage.getItem("elichaa
 const $=id=>document.getElementById(id);
 function cleanText(value){return String(value??"").replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g,"")}
 function setText(id,value){if($(id)&&value!==undefined)$(id).textContent=cleanText(value)}
-function setTextWithBreaks(id,value){const el=$(id);if(!el)return;el.replaceChildren();cleanText(value).split("\\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
+function setTextWithBreaks(id,value){const el=$(id);if(!el)return;el.replaceChildren();cleanText(value).replace(/\\n/g,"\n").split("\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
 function applyThemeColors(){
  const mode=document.documentElement.dataset.theme==="light"?"light":"dark",p=content.colors?.[mode];
  if(p){const vars={bg:"--bg",surface:"--surface",surface2:"--surface2",text:"--text",muted:"--muted",green:"--green",green2:"--green2",header:"--header",line:"--line"};for(const [k,v] of Object.entries(vars))if(p[k])document.documentElement.style.setProperty(v,p[k]);}
