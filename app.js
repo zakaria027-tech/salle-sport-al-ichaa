@@ -58,7 +58,7 @@ function applyContent(){
  const t=content.translations?.[lang]||content.translations.fr;
  document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";document.body.classList.toggle("rtl",lang==="ar");
  document.querySelectorAll("[data-i18n]").forEach(el=>{const custom=content.uiTranslations?.[lang]?.[el.dataset.i18n];const v=custom!==undefined?custom:I18N[lang]?.[el.dataset.i18n];if(v!==undefined){el.textContent=cleanText(v)}});
- setText("brandName",content.siteName);setText("footerName",content.siteName);setText("copyrightName",content.siteName);document.title=content.siteName+" | Agadir";
+ setText("brandName",content.siteName);setText("footerName",content.footerName||content.siteName);setText("copyrightName",content.siteName);document.title=content.siteName+" | Agadir";
  for(const [id,key] of [["heroTitle","heroTitle"],["heroText","heroText"],["aboutTitle","aboutTitle"],["aboutText","aboutText"],["fitnessTitle","fitnessTitle"],["fitnessText","fitnessText"],["martialTitle","martialTitle"],["martialText","martialText"],["addressText","address"],["hoursText","hours"]])setText(id,t[key]);
  setHeroTitle(t.heroTitle||"");
  setTextWithBreaks("aboutTitle",t.aboutTitle||"");
