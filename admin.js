@@ -27,7 +27,7 @@ const IMAGE_FIELDS=[
  {path:"logoUrl",title:"Logo du club",label:"Logo du club",fallback:""}
 ];
 const ID_FIELDS={
- brandName:{path:"siteName",title:"Nom du club"},heroTitle:{path:"translations",key:"heroTitle",title:"Titre principal"},
+ brandName:{path:"siteName",title:"Nom du club"},footerName:{path:"footerName",title:"Nom النادي في أسفل الصفحة"},heroTitle:{path:"translations",key:"heroTitle",title:"Titre principal"},
  heroText:{path:"translations",key:"heroText",title:"Description principale"},aboutTitle:{path:"translations",key:"aboutTitle",title:"Titre — À propos"},
  aboutText:{path:"translations",key:"aboutText",title:"Texte — À propos"},fitnessTitle:{path:"translations",key:"fitnessTitle",title:"Titre — Fitness"},
  fitnessText:{path:"translations",key:"fitnessText",title:"Texte — Fitness"},martialTitle:{path:"translations",key:"martialTitle",title:"Titre — Arts martiaux"},
@@ -54,6 +54,7 @@ function refreshPreview(path,value){
  const byId=id=>doc.getElementById(id);
  if(path.startsWith("customImages.")){const key=path.slice("customImages.".length),el=doc.querySelector('[data-admin-image="'+key.replace(/["\\]/g,"")+'"]');if(el&&el.tagName==="IMG")el.src=value;return;}
  if(path==="siteName"){["brandName","footerName","copyrightName"].forEach(id=>{if(byId(id))byId(id).textContent=value});doc.title=value+" | Agadir"}
+ else if(path==="footerName"&&byId("footerName"))byId("footerName").textContent=value
  else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText",address:"addressText",hours:"hoursText"};if(key==="heroTitle")setHeroTitlePreview(byId("heroTitle"),value);else if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)setTextNode(el,value)}}
  else if(path.startsWith("uiTranslations.")){const key=path.split(".")[2],el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}
  else if(path==="images.fitness"||path==="images.martial"){const id=path.endsWith("fitness")?"fitnessImage":"martialImage";if(byId(id))byId(id).src=value}
