@@ -24,7 +24,9 @@ const I18N={
 window.SITE_I18N=I18N;
 let content=structuredClone(DEFAULT_CONTENT), lang=localStorage.getItem("elichaa-lang")||"fr";
 const $=id=>document.getElementById(id);
-function cleanText(value){return String(value??"").replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g,"")}\nfunction setText(id,value){if($(id)&&value!==undefined)$(id).textContent=cleanText(value)}\nfunction setTextWithBreaks(id,value){const el=$(id);if(!el)return;el.replaceChildren();cleanText(value).split("\\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
+function cleanText(value){return String(value??"").replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g,"")}
+function setText(id,value){if($(id)&&value!==undefined)$(id).textContent=cleanText(value)}
+function setTextWithBreaks(id,value){const el=$(id);if(!el)return;el.replaceChildren();cleanText(value).split("\\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
 function applyThemeColors(){
  const mode=document.documentElement.dataset.theme==="light"?"light":"dark",p=content.colors?.[mode];
  if(p){const vars={bg:"--bg",surface:"--surface",surface2:"--surface2",text:"--text",muted:"--muted",green:"--green",green2:"--green2",header:"--header",line:"--line"};for(const [k,v] of Object.entries(vars))if(p[k])document.documentElement.style.setProperty(v,p[k]);}
@@ -57,8 +59,8 @@ function applyContent(){
  document.querySelectorAll("[data-i18n]").forEach(el=>{const custom=content.uiTranslations?.[lang]?.[el.dataset.i18n];const v=custom!==undefined?custom:I18N[lang]?.[el.dataset.i18n];if(v!==undefined){el.textContent=cleanText(v)}});
  setText("brandName",content.siteName);setText("footerName",content.siteName);setText("copyrightName",content.siteName);document.title=content.siteName+" | Agadir";
  for(const [id,key] of [["heroTitle","heroTitle"],["heroText","heroText"],["aboutTitle","aboutTitle"],["aboutText","aboutText"],["fitnessTitle","fitnessTitle"],["fitnessText","fitnessText"],["martialTitle","martialTitle"],["martialText","martialText"],["addressText","address"],["hoursText","hours"]])setText(id,t[key]);
- $("heroTitle").innerHTML=(t.heroTitle||"").replace(/\\n/g,"<br>");
- $("aboutTitle").innerHTML=(t.aboutTitle||"").replace(/\\n/g,"<br>");
+ setTextWithBreaks("heroTitle",t.heroTitle||"");
+ setTextWithBreaks("aboutTitle",t.aboutTitle||"");
  $("fitnessImage").src=content.images?.fitness||DEFAULT_CONTENT.images.fitness;$("martialImage").src=content.images?.martial||DEFAULT_CONTENT.images.martial;
  renderSports();
  document.querySelectorAll("img").forEach((img,i)=>{if(!img.dataset.adminImage)img.dataset.adminImage=img.id||("image-"+i);const replacement=content.customImages?.[img.dataset.adminImage];if(replacement)img.src=replacement;});
