@@ -217,3 +217,14 @@ html[data-theme="light"] .hero h1 .hero-title-accent{
  text-shadow:none;
  filter:drop-shadow(0 2px 9px rgba(0,0,0,.28));
 }
+
+
+/* Allow admin-selected text color to override the decorative hero gradient */
+.hero h1[data-admin-text-color] .hero-title-accent{
+ background:none!important;
+ -webkit-background-clip:initial!important;
+ background-clip:initial!important;
+ -webkit-text-fill-color:currentColor!important;
+ color:inherit!important;
+ filter:none!important;
+}
