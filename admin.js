@@ -48,12 +48,13 @@ function setupColorEditor(){const themeInput=$("colorTheme"),applyButton=$("appl
 function markDraft(){ $("saveState").textContent="Modifications non publiées"; $("saveState").style.color="var(--green)" }
 function cleanText(value){return String(value??"").replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g,"")}
 function setTextNode(el,value){if(!el)return;el.replaceChildren();cleanText(value).replace(/\\n/g,"\n").split("\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
+function setHeroTitlePreview(el,value){if(!el)return;el.replaceChildren();const lines=cleanText(value).replace(/\\n/g,"\n").split("\n");lines.forEach((part,i)=>{if(i)el.append(document.createElement("br"));if(i===lines.length-1){const accent=document.createElement("span");accent.className="hero-title-accent";accent.textContent=part;el.append(accent)}else el.append(document.createTextNode(part))})}
 function refreshPreview(path,value){
  const frame=$("sitePreview"),doc=frame.contentDocument;if(!doc)return;
  const byId=id=>doc.getElementById(id);
  if(path.startsWith("customImages.")){const key=path.slice("customImages.".length),el=doc.querySelector('[data-admin-image="'+key.replace(/["\\]/g,"")+'"]');if(el&&el.tagName==="IMG")el.src=value;return;}
  if(path==="siteName"){["brandName","footerName","copyrightName"].forEach(id=>{if(byId(id))byId(id).textContent=value});doc.title=value+" | Agadir"}
- else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText",address:"addressText",hours:"hoursText"};if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)setTextNode(el,value)}}
+ else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText",address:"addressText",hours:"hoursText"};if(key==="heroTitle")setHeroTitlePreview(byId("heroTitle"),value);else if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)setTextNode(el,value)}}
  else if(path.startsWith("uiTranslations.")){const key=path.split(".")[2],el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}
  else if(path==="images.fitness"||path==="images.martial"){const id=path.endsWith("fitness")?"fitnessImage":"martialImage";if(byId(id))byId(id).src=value}
  else if(path==="heroImage"){const el=byId("heroImage");if(el)el.style.backgroundImage='linear-gradient(90deg,rgba(3,10,6,.90),rgba(3,10,6,.18)),url("'+value.replace(/["\\]/g,"")+'")'}
@@ -91,7 +92,7 @@ function textColorTarget(doc,key){
  if(parts[0]==="review"){const card=doc.querySelectorAll("#reviewGrid .review")[Number(parts[1])];return card?.querySelector(parts[2]==="name"?"small":parts[2]==="rating"?".stars":"p")||null;}
  return null;
 }
-function applyPreviewTextColor(doc,key,color){const target=textColorTarget(doc,key);if(target){target.style.setProperty("--admin-text-color",color);target.style.color="var(--admin-text-color)";}}
+function applyPreviewTextColor(doc,key,color){const target=textColorTarget(doc,key);if(target){target.style.setProperty("--admin-text-color",color);target.style.color="var(--admin-text-color)";target.setAttribute("data-admin-text-color","1");}}
 function syncPreviewTextColors(mode){const doc=$("sitePreview").contentDocument;if(!doc||!draft)return;for(const [key,color] of Object.entries(draft.textColors?.[mode]||{}))applyPreviewTextColor(doc,key,color);}
 function openEditor(item){
  selected=item;$("selectionEmpty").hidden=true;$("editorPanel").hidden=false;
