@@ -46,13 +46,13 @@ const COLOR_DEFAULTS={dark:{bg:"#07100b",surface:"#0d1811",surface2:"#132219",te
 function fillColorInputs(){const themeInput=$("colorTheme");if(!themeInput)return;const mode=themeInput.value==="light"?"light":"dark",p={...COLOR_DEFAULTS[mode],...(draft?.colors?.[mode]||{})};for(const k of Object.keys(COLOR_DEFAULTS.dark)){const input=$("color"+k[0].toUpperCase()+k.slice(1));if(input)input.value=p[k]||COLOR_DEFAULTS[mode][k];}}
 function setupColorEditor(){const themeInput=$("colorTheme"),applyButton=$("applyColors");if(!themeInput||!applyButton)return;fillColorInputs();themeInput.onchange=fillColorInputs;applyButton.onclick=()=>{const mode=$("colorTheme").value;draft.colors=draft.colors||clone(COLOR_DEFAULTS);draft.colors[mode]={};for(const k of Object.keys(COLOR_DEFAULTS[mode])){const input=$("color"+k[0].toUpperCase()+k.slice(1));if(input)draft.colors[mode][k]=input.value;}const doc=$("sitePreview").contentDocument;if(doc){doc.documentElement.dataset.theme=mode;const vars={bg:"--bg",surface:"--surface",surface2:"--surface2",text:"--text",muted:"--muted",green:"--green",green2:"--green2",header:"--header",line:"--line"};for(const [k,v] of Object.entries(vars))doc.documentElement.style.setProperty(v,draft.colors[mode][k]);syncPreviewTextColors(mode);}markDraft();notify("saveState","تم تطبيق ألوان الوضع "+(mode==="dark"?"الداكن":"الفاتح")+" على المعاينة.");};}
 function markDraft(){ $("saveState").textContent="Modifications non publiées"; $("saveState").style.color="var(--green)" }
-function setTextNode(el,value){if(!el)return;el.replaceChildren();String(value??"").split("\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
+function cleanText(value){return String(value??"").replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g,"")}\nfunction setTextNode(el,value){if(!el)return;el.replaceChildren();cleanText(value).split("\n").forEach((part,i)=>{if(i)el.append(document.createElement("br"));el.append(document.createTextNode(part))})}
 function refreshPreview(path,value){
  const frame=$("sitePreview"),doc=frame.contentDocument;if(!doc)return;
  const byId=id=>doc.getElementById(id);
  if(path.startsWith("customImages.")){const key=path.slice("customImages.".length),el=doc.querySelector('[data-admin-image="'+key.replace(/["\\]/g,"")+'"]');if(el&&el.tagName==="IMG")el.src=value;return;}
  if(path==="siteName"){["brandName","footerName","copyrightName"].forEach(id=>{if(byId(id))byId(id).textContent=value});doc.title=value+" | Agadir"}
- else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText",address:"addressText",hours:"hoursText"};if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=key==="pricingTitle"?String(value).replace(/<[^>]*>/g,""):value}}
+ else if(path.startsWith("translations.")){const key=path.split(".")[2];const ids={heroTitle:"heroTitle",heroText:"heroText",aboutTitle:"aboutTitle",aboutText:"aboutText",fitnessTitle:"fitnessTitle",fitnessText:"fitnessText",martialTitle:"martialTitle",martialText:"martialText",address:"addressText",hours:"hoursText"};if(ids[key])setTextNode(byId(ids[key]),value);else{const el=doc.querySelector('[data-i18n="'+key+'"]');if(el)setTextNode(el,value)}}
  else if(path.startsWith("uiTranslations.")){const key=path.split(".")[2],el=doc.querySelector('[data-i18n="'+key+'"]');if(el)el.textContent=value}
  else if(path==="images.fitness"||path==="images.martial"){const id=path.endsWith("fitness")?"fitnessImage":"martialImage";if(byId(id))byId(id).src=value}
  else if(path==="heroImage"){const el=byId("heroImage");if(el)el.style.backgroundImage='linear-gradient(90deg,rgba(3,10,6,.90),rgba(3,10,6,.18)),url("'+value.replace(/["\\]/g,"")+'")'}
@@ -122,11 +122,11 @@ function renderSportsPreview(){
  grid.replaceChildren();const code=language(),pending={fr:"Tarif à confirmer",ar:"السعر يحدد من الإدارة",en:"Price to be confirmed"};
  (draft.sports||[]).forEach(sport=>{
   const card=doc.createElement("article");card.className="sport-price-card";
-  const title=doc.createElement("h3");title.textContent=sportName(sport,code)||"Sport";
+  const title=doc.createElement("h3");title.textContent=cleanText(sportName(sport,code)||"Sport");
   const media=doc.createElement("div");media.className="sport-price-media";
   if(sport.image){const img=doc.createElement("img");img.src=sport.image;img.alt=title.textContent;media.append(img);}
   else{const placeholder=doc.createElement("span");placeholder.className="sport-image-placeholder";placeholder.textContent="EL-ICHAA";media.append(placeholder);}
-  const price=doc.createElement("p");price.className="sport-price-value";price.textContent=String(sport.price||"").trim()||pending[code];
+  const price=doc.createElement("p");price.className="sport-price-value";price.textContent=cleanText(String(sport.price||"").trim())||pending[code];
   card.append(title,media,price);grid.append(card);
  });
 }
@@ -140,7 +140,7 @@ function renderSportsManager(){
   const fields=document.createElement("div");fields.className="sports-manager-fields";
   for(const [code,label,dir] of [["fr","Français","ltr"],["ar","العربية","rtl"],["en","English","ltr"]]){
    const wrap=document.createElement("label");wrap.className="sports-field";wrap.textContent="الاسم — "+label;
-   const input=document.createElement("input");input.type="text";input.value=sport.name?.[code]||"";input.placeholder="اسم الرياضة";input.dir=dir;input.dataset.sportId=sport.id;input.dataset.sportField="name."+code;wrap.append(input);fields.append(wrap);
+   const input=document.createElement("input");input.type="text";input.value=cleanText(sport.name?.[code]||"");input.placeholder="اسم الرياضة";input.dir=dir;input.dataset.sportId=sport.id;input.dataset.sportField="name."+code;wrap.append(input);fields.append(wrap);
   }
   const priceWrap=document.createElement("label");priceWrap.className="sports-field";priceWrap.textContent="السعر";
   const priceInput=document.createElement("input");priceInput.type="text";priceInput.value=sport.price||"";priceInput.placeholder="مثال: 150 درهم / الشهر";priceInput.dataset.sportId=sport.id;priceInput.dataset.sportField="price";priceWrap.append(priceInput);fields.append(priceWrap);card.append(fields);
