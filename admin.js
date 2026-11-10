@@ -27,7 +27,7 @@ const IMAGE_FIELDS=[
  {path:"logoUrl",title:"Logo du club",label:"Logo du club",fallback:""}
 ];
 const ID_FIELDS={
- brandName:{path:"siteName",title:"Nom du club"},footerName:{path:"footerName",title:"Nom النادي في أسفل الصفحة"},heroTitle:{path:"translations",key:"heroTitle",title:"Titre principal"},
+ brandName:{path:"siteName",title:"Nom du club"},footerName:{path:"footerName",title:"اسم النادي في رابط أسفل الصفحة"},copyrightName:{path:"copyrightName",title:"اسم النادي بجانب حقوق النشر"},footerBrandMark:{path:"footerLogoUrl",title:"صورة الشعار في أسفل الصفحة",type:"image"},heroTitle:{path:"translations",key:"heroTitle",title:"Titre principal"},
  heroText:{path:"translations",key:"heroText",title:"Description principale"},aboutTitle:{path:"translations",key:"aboutTitle",title:"Titre — À propos"},
  aboutText:{path:"translations",key:"aboutText",title:"Texte — À propos"},fitnessTitle:{path:"translations",key:"fitnessTitle",title:"Titre — Fitness"},
  fitnessText:{path:"translations",key:"fitnessText",title:"Texte — Fitness"},martialTitle:{path:"translations",key:"martialTitle",title:"Titre — Arts martiaux"},
