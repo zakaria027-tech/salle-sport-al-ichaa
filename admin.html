@@ -10,18 +10,18 @@
 <body>
 <div class="app-shell">
   <header class="topbar">
-    <a href="index.html" class="brand"><span class="brand-mark">EI</span><span><b>EL-ICHAA</b><small>STUDIO · ADMINISTRATION</small></span></a>
-    <div class="top-actions"><span class="secure"><i></i> SUPABASE SECURE</span><button id="themeToggle" class="icon-button" type="button" aria-label="Changer le thème">☼</button><button id="logoutBtn" class="button button-quiet" hidden>Déconnexion ↗</button></div>
+    <a href="index.html" class="brand"><span class="brand-mark">EI</span><span><b>EL-ICHAA</b><small data-ui="brandSubtitle">STUDIO · ADMINISTRATION</small></span></a>
+    <div class="top-actions"><label class="ui-language-label" for="adminUiLanguage" data-ui-label="interfaceLanguage">Interface</label><select id="adminUiLanguage" class="ui-language-select" aria-label="Interface language"><option value="fr">Français</option><option value="ar">العربية</option></select><span class="secure"><i></i><span data-ui="secure">SUPABASE SECURE</span></span><button id="themeToggle" class="icon-button" type="button" aria-label="Changer le thème">☼</button><button id="logoutBtn" class="button button-quiet" hidden><span data-ui="logout">Déconnexion</span> ↗</button></div>
   </header>
 
   <main>
     <section id="loginPanel" class="login-wrap">
       <div class="login-card">
-        <div class="eyebrow">ESPACE PRIVÉ</div><h1>Bienvenue.</h1><p>Connectez-vous pour modifier le site du club.</p>
+        <div class="eyebrow" data-ui="privateSpace">ESPACE PRIVÉ</div><h1 data-ui="welcome">Bienvenue.</h1><p data-ui="loginIntro">Connectez-vous pour modifier le site du club.</p>
         <form id="loginForm">
-          <label>Adresse e-mail<input type="email" id="email" required autocomplete="username" placeholder="admin@exemple.com"></label>
-          <label>Mot de passe<input type="password" id="password" required autocomplete="current-password" placeholder="••••••••••"></label>
-          <button class="button button-primary full" type="submit">Ouvrir la gestion <span>↗</span></button>
+          <label data-ui-label="emailLabel">Adresse e-mail<input type="email" id="email" required autocomplete="username" placeholder="admin@exemple.com"></label>
+          <label data-ui-label="passwordLabel">Mot de passe<input type="password" id="password" required autocomplete="current-password" placeholder="••••••••••"></label>
+          <button class="button button-primary full" type="submit"><span data-ui="loginSubmit">Ouvrir la gestion</span> <span>↗</span></button>
           <p id="loginMessage" class="message" role="status"></p>
         </form>
       </div>
@@ -29,48 +29,48 @@
 
     <section id="dashboard" hidden>
       <div class="dashboard-heading">
-        <div><div class="eyebrow">TABLEAU DE BORD</div><h1>Éditeur visuel</h1><p>Choisissez un élément directement dans l’aperçu pour le modifier.</p></div>
-        <div class="publish-area"><span id="saveState" class="save-state">Toutes les modifications sont enregistrées</span><button id="publishBtn" class="button button-primary">Publier les modifications ↗</button></div>
+        <div><div class="eyebrow" data-ui="dashboardEyebrow">TABLEAU DE BORD</div><h1 data-ui="dashboardTitle">Éditeur visuel</h1><p data-ui="dashboardIntro">Choisissez un élément directement dans l’aperçu pour le modifier.</p></div>
+        <div class="publish-area"><span id="saveState" class="save-state">Toutes les modifications sont enregistrées</span><button id="publishBtn" class="button button-primary"><span data-ui="publish">Publier les modifications</span> ↗</button></div>
       </div>
       <div class="workspace">
         <aside class="control-panel">
-          <div class="panel-heading"><div><span class="eyebrow">ÉDITION</span><h2>Modifier le site</h2></div><span class="live-dot">LIVE</span></div>
-          <div class="control-row"><label for="editLanguage">Langue du contenu</label><select id="editLanguage"><option value="fr">Français</option><option value="ar">العربية</option><option value="en">English</option></select></div>
-          <div id="selectionEmpty" class="selection-empty"><div class="cursor-symbol">↖</div><b>Aucun élément sélectionné</b><p>Cliquez sur un texte ou une image dans l’aperçu à droite pour commencer.</p></div>
+          <div class="panel-heading"><div><span class="eyebrow" data-ui="editing">ÉDITION</span><h2 data-ui="editSite">Modifier le site</h2></div><span class="live-dot">LIVE</span></div>
+          <div class="control-row"><label for="editLanguage" data-ui-label="contentLanguage">Langue du contenu</label><select id="editLanguage"><option value="fr">Français</option><option value="ar">العربية</option><option value="en">English</option></select></div>
+          <div id="selectionEmpty" class="selection-empty"><div class="cursor-symbol">↖</div><b data-ui="nothingSelected">Aucun élément sélectionné</b><p data-ui="selectHint">Cliquez sur un texte ou une image dans l’aperçu à droite pour commencer.</p></div>
           <section id="editorPanel" class="editor-panel" hidden>
-            <div class="selected-label">ÉLÉMENT SÉLECTIONNÉ</div><h3 id="selectedTitle">Modifier le texte</h3><p id="selectedHelp" class="help-text"></p>
-            <div id="multilingualControls" class="multilingual-controls" hidden><label class="language-field">Français<textarea id="valueFr" rows="3"></textarea></label><label class="language-field">العربية<textarea id="valueAr" rows="3" dir="rtl"></textarea></label><label class="language-field">English<textarea id="valueEn" rows="3"></textarea></label></div><label id="valueLabel" for="editValue">Contenu</label><textarea id="editValue" rows="4"></textarea>
-            <div id="imageControls" hidden><div id="imagePreview" class="image-preview"></div><label class="upload-button" for="imageUpload">＋ رفع صورة بديلة من الجهاز</label><input id="imageUpload" type="file" accept="image/*" hidden><p class="help-text">Formats image · 5 Mo maximum. L’image sera envoyée vers le stockage sécurisé du site.</p></div>
+            <div class="selected-label" data-ui="selectedElement">ÉLÉMENT SÉLECTIONNÉ</div><h3 id="selectedTitle">Modifier le texte</h3><p id="selectedHelp" class="help-text"></p>
+            <div id="multilingualControls" class="multilingual-controls" hidden><label class="language-field">Français<textarea id="valueFr" rows="3"></textarea></label><label class="language-field">العربية<textarea id="valueAr" rows="3" dir="rtl"></textarea></label><label class="language-field">English<textarea id="valueEn" rows="3"></textarea></label></div><label id="valueLabel" for="editValue" data-ui-label="contentLabel">Contenu</label><textarea id="editValue" rows="4"></textarea>
+            <div id="imageControls" hidden><div id="imagePreview" class="image-preview"></div><label class="upload-button" for="imageUpload" data-ui="replaceImage">＋ Remplacer l’image depuis votre appareil</label><input id="imageUpload" type="file" accept="image/*" hidden><p class="help-text" data-ui="imageUploadHelp">Formats image · 5 Mo maximum. L’image sera envoyée vers le stockage sécurisé du site.</p></div>
             <section id="textColorControls" class="text-color-controls" hidden>
-              <div class="selected-label">COULEUR DU TEXTE SÉLECTIONNÉ</div>
-              <p class="help-text">Choisissez une couleur différente pour ce texte dans chaque thème. Les réglages sont indépendants.</p>
-              <label class="theme-color-field">لون النص في الوضع الداكن<input id="textColorDark" type="color" value="#f4f8f4"></label>
-              <label class="theme-color-field">لون النص في الوضع الفاتح<input id="textColorLight" type="color" value="#102017"></label>
-              <button id="applyTextColors" class="button button-primary" type="button">تطبيق لون النص في الوضعين</button>
+              <div class="selected-label" data-ui="selectedTextColor">COULEUR DU TEXTE SÉLECTIONNÉ</div>
+              <p class="help-text" data-ui="textColorHelp">Choisissez une couleur différente pour ce texte dans chaque thème. Les réglages sont indépendants.</p>
+              <label class="theme-color-field"><span data-ui="darkTextColor">لون النص في الوضع الداكن</span><input id="textColorDark" type="color" value="#f4f8f4"></label>
+              <label class="theme-color-field"><span data-ui="lightTextColor">لون النص في الوضع الفاتح</span><input id="textColorLight" type="color" value="#102017"></label>
+              <button id="applyTextColors" class="button button-primary" type="button" data-ui="applyTextColors">تطبيق لون النص في الوضعين</button>
             </section>
-            <div class="editor-buttons"><button id="cancelEdit" class="button button-quiet" type="button">Annuler</button><button id="applyEdit" class="button button-primary" type="button">Appliquer</button></div>
+            <div class="editor-buttons"><button id="cancelEdit" class="button button-quiet" type="button" data-ui="cancel">Annuler</button><button id="applyEdit" class="button button-primary" type="button" data-ui="apply">Appliquer</button></div>
             <p id="editMessage" class="message" role="status"></p>
           </section>
           <section class="image-library">
-            <div class="selected-label">IMAGES DU SITE</div>
-            <h3>Gérer les images</h3>
-            <p class="help-text">Remplacez n’importe quelle image du site depuis votre appareil. Les changements restent en brouillon jusqu’à la publication.</p>
+            <div class="selected-label" data-ui="siteImages">IMAGES DU SITE</div>
+            <h3 data-ui="manageImages">Gérer les images</h3>
+            <p class="help-text" data-ui="manageImagesHelp">Remplacez n’importe quelle image du site depuis votre appareil. Les changements restent en brouillon jusqu’à la publication.</p>
             <div id="imageLibraryList" class="image-library-list"></div>
           </section>
           <section class="sports-manager">
-            <div class="selected-label">GESTION DES TARIFS</div><h3>الرياضات والأسعار</h3>
-            <p class="help-text">أضف الرياضات، وعدّل أسماءها باللغات الثلاث وأسعارها وصور كل رياضة بشكل مستقل. اضغط على «نشر» لحفظ التغييرات للزوار.</p>
+            <div class="selected-label" data-ui="pricingManagement">GESTION DES TARIFS</div><h3 data-ui="sportsPrices">الرياضات والأسعار</h3>
+            <p class="help-text" data-ui="sportsHelp">أضف الرياضات، وعدّل أسماءها باللغات الثلاث وأسعارها وصور كل رياضة بشكل مستقل. اضغط على «نشر» لحفظ التغييرات للزوار.</p>
             <div id="sportsManagerList" class="sports-manager-list"></div>
-            <button id="addSportBtn" class="button button-primary sports-add-button" type="button">＋ إضافة رياضة</button>
+            <button id="addSportBtn" class="button button-primary sports-add-button" type="button" data-ui="addSport">＋ إضافة رياضة</button>
           </section>
-          <section class="color-editor"><div class="selected-label">COULEURS DU SITE</div><h3>Personnaliser les couleurs</h3><label for="colorTheme">Thème à modifier</label><select id="colorTheme"><option value="dark">Mode sombre</option><option value="light">Mode clair</option></select><div class="color-grid"><label>Arrière-plan<input type="color" id="colorBg"></label><label>Surfaces<input type="color" id="colorSurface"></label><label>Surface secondaire<input type="color" id="colorSurface2"></label><label>Texte<input type="color" id="colorText"></label><label>Texte secondaire<input type="color" id="colorMuted"></label><label>Couleur principale<input type="color" id="colorGreen"></label><label>Couleur secondaire<input type="color" id="colorGreen2"></label><label>En-tête<input type="color" id="colorHeader"></label><label>Bordures<input type="color" id="colorLine"></label></div><p class="help-text">Les couleurs du mode sombre et du mode clair sont enregistrées séparément.</p><button id="applyColors" class="button button-primary" type="button">Appliquer les couleurs</button></section><div class="panel-footer"><button id="discardBtn" class="text-button" type="button">Annuler toutes les modifications</button><p>Les changements restent en brouillon jusqu’à la publication.</p></div>
+          <section class="color-editor"><div class="selected-label" data-ui="siteColors">COULEURS DU SITE</div><h3 data-ui="customizeColors">Personnaliser les couleurs</h3><label for="colorTheme" data-ui-label="themeToEdit">Thème à modifier</label><select id="colorTheme"><option value="dark">Mode sombre</option><option value="light">Mode clair</option></select><div class="color-grid"><label><span data-ui="backgroundColor">Arrière-plan</span><input type="color" id="colorBg"></label><label><span data-ui="surfaces">Surfaces</span><input type="color" id="colorSurface"></label><label><span data-ui="secondarySurface">Surface secondaire</span><input type="color" id="colorSurface2"></label><label><span data-ui="textColor">Texte</span><input type="color" id="colorText"></label><label><span data-ui="secondaryText">Texte secondaire</span><input type="color" id="colorMuted"></label><label><span data-ui="primaryColor">Couleur principale</span><input type="color" id="colorGreen"></label><label><span data-ui="secondaryColor">Couleur secondaire</span><input type="color" id="colorGreen2"></label><label><span data-ui="headerColor">En-tête</span><input type="color" id="colorHeader"></label><label><span data-ui="borders">Bordures</span><input type="color" id="colorLine"></label></div><p class="help-text" data-ui="colorsHelp">Les couleurs du mode sombre et du mode clair sont enregistrées séparément.</p><button id="applyColors" class="button button-primary" type="button" data-ui="applyColors">Appliquer les couleurs</button></section><div class="panel-footer"><button id="discardBtn" class="text-button" type="button" data-ui="discard">Annuler toutes les modifications</button><p data-ui="draftHelp">Les changements restent en brouillon jusqu’à la publication.</p></div>
         </aside>
         <section class="preview-panel">
-          <div class="preview-toolbar"><div><span class="preview-indicator"></span><b>Aperçu du site</b><span class="preview-subtitle">Cliquez pour modifier</span></div><a href="index.html" target="_blank" rel="noopener">Ouvrir le site ↗</a></div>
+          <div class="preview-toolbar"><div><span class="preview-indicator"></span><b data-ui="sitePreview">Aperçu du site</b><span class="preview-subtitle" data-ui="previewHint">Cliquez pour modifier</span></div><a href="index.html" target="_blank" rel="noopener"><span data-ui="openSite">Ouvrir le site</span> ↗</a></div>
           <div class="preview-frame-wrap"><iframe id="sitePreview" title="Aperçu interactif du site" src="index.html?adminPreview=1"></iframe></div>
         </section>
       </div>
-      <div class="bottom-note"><span>El-ichaa Studio</span><span>Les modifications publiées sont visibles sur le site public.</span></div>
+      <div class="bottom-note"><span>El-ichaa Studio</span><span data-ui="publishedNote">Les modifications publiées sont visibles sur le site public.</span></div>
     </section>
   </main>
 </div>
