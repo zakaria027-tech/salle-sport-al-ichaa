@@ -28,3 +28,19 @@
 .sports-image-row>img,.sports-image-placeholder{width:78px;height:62px;flex:0 0 78px;object-fit:cover;border-radius:7px;background:var(--bg)}
 .sports-image-placeholder{display:grid;place-items:center;font-size:9px;color:var(--muted);text-align:center}
 .sports-upload-label{display:inline-flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;font-size:10px;flex:1;padding:9px}.sports-add-button{width:100%;margin-top:13px}
+
+/* Arabic / French administration interface switch */
+.ui-language-label{margin:0;font-size:10px;white-space:nowrap;color:var(--muted)}
+.ui-language-select{width:auto;min-width:112px;padding:8px 10px;font-size:11px}
+:root[dir="rtl"] body{font-family:"DM Sans","Arial",sans-serif}
+:root[dir="rtl"] .topbar,:root[dir="rtl"] .top-actions,:root[dir="rtl"] .dashboard-heading,:root[dir="rtl"] .publish-area,:root[dir="rtl"] .panel-heading,:root[dir="rtl"] .preview-toolbar,:root[dir="rtl"] .bottom-note{direction:rtl}
+:root[dir="rtl"] .control-panel,:root[dir="rtl"] .login-card,:root[dir="rtl"] .dashboard-heading,:root[dir="rtl"] .panel-heading,:root[dir="rtl"] .preview-toolbar,:root[dir="rtl"] .bottom-note,:root[dir="rtl"] .color-editor,:root[dir="rtl"] .sports-manager,:root[dir="rtl"] .image-library,:root[dir="rtl"] .editor-panel{text-align:right}
+:root[dir="rtl"] .secure i{margin:0 0 0 7px}
+:root[dir="rtl"] .preview-subtitle{margin:0 10px 0 0}
+:root[dir="rtl"] .editor-buttons{justify-content:flex-start}
+:root[dir="rtl"] .image-library-item{text-align:right}
+:root[dir="rtl"] .image-library-action{margin-left:0;margin-right:auto}
+:root[dir="rtl"] input,:root[dir="rtl"] textarea,:root[dir="rtl"] select{direction:rtl;text-align:right}
+:root[dir="rtl"] input[type="email"],:root[dir="rtl"] input[type="password"],:root[dir="rtl"] input[type="color"]{direction:ltr;text-align:left}
+:root[dir="rtl"] .language-field textarea{direction:rtl;text-align:right}
+@media(max-width:760px){.top-actions{gap:7px}.ui-language-select{min-width:92px;padding:7px}.ui-language-label{display:none}}
